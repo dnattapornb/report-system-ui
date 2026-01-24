@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { socket } from './services/socket';
+import apiClient from './services/api'; // [FIX] Changed to default import
 import { Line } from 'vue-chartjs';
 import {
 	Chart as ChartJS, Title, Tooltip, Legend, LineElement,
@@ -39,11 +40,12 @@ const chartData = computed(() => {
 
 // Life Cycle & Real-time Pub/Sub
 onMounted(async () => {
-	// Initial Load
+	// Initial Load using the new apiClient
 	try {
-		const res = await fetch('http://localhost:3000/reports');
-		allReport.value = await res.json();
-		console.log('allReport ==>',allReport)
+		// Use the apiClient created from axios to call the API
+		const response = await apiClient.get('/reports');
+		allReport.value = response.data; // With axios, the data is in the `data` property
+		console.log('allReport ==>', allReport.value);
 	} catch (err) {
 		console.error('Failed to load initial data', err);
 	}
