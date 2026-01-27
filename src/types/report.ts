@@ -1,4 +1,30 @@
-// Structure: { [type]: { [year]: { [month]: value } } }
 export type MonthlyReport = Record<string, number>;
-export type YearlyReport = Record<string, MonthlyReport>;
-export type AllReportData = Record<string, YearlyReport>;
+
+export interface SaaSMetricItem {
+  year: string;
+  month: string;
+  mrr: number;
+  expansion: number;
+  churnAmount: number;
+  contraction: number;
+  nrrPercent: number;
+  grrPercent: number;
+  churnRatePercent: number;
+  actualProfit: number;
+  targetProfit: number;
+  newClientsOrganic: number;
+  newClientsBusinessPartner: number;
+  totalRevenue: number;
+  label?: string;
+}
+
+/**
+ * @example
+ * {
+ *   "2024": {
+ *     "01": { mrr: 1000, nrrPercent: 105, ... },
+ *     "02": { mrr: 1200, nrrPercent: 106, ... }
+ *   }
+ * }
+ */
+export type SaaSMetricsData = Record<string, Record<string, SaaSMetricItem>>;
