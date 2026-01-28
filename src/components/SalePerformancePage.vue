@@ -13,223 +13,212 @@ import AcquisitionMixChart from './charts/AcquisitionMixChart.vue';
 
 const store = useSaasMetricsStore();
 
-// Computed property for year picker v-model
-const selectedYearForPicker = computed({
-  get: () => store.selectedYear ? { year: parseInt(store.selectedYear), month: 0 } : null,
-  set: (val: { year: number; month: number } | number | null) => {
-    let yearString: string | null = null;
-    if (typeof val === 'number') { // If returns a number directly e.g., 2024
-      yearString = val.toString();
-    } else if (val && typeof val === 'object' && 'year' in val) { // If it returns e.g., { year: 2024, month: 0 }
-      yearString = val.year.toString();
-    }
-    store.selectedYear = yearString;
-    store.selectedMonth = null;
-  },
-});
-
-// Computed property for month picker v-model
-const selectedMonthForPicker = computed({
-  get: () => store.selectedMonth ? { year: parseInt(store.selectedMonth.year), month: parseInt(store.selectedMonth.month) - 1 } : null,
-  set: (val) => {
-    if (val && typeof val === 'object' && 'year' in val && 'month' in val && val.month !== undefined) {
-      store.selectedMonth = {
-        year: val.year.toString(),
-        month: (val.month + 1).toString().padStart(2, '0'),
-      };
-      store.selectedYear = val.year.toString(); // Ensure year is also selected
-    } else {
-      store.selectedMonth = null;
-    }
-  },
-});
-
-// Filtered data from store
-const filteredData = computed(() => store.sortedMonthlyData);
-const isSingleMonthView = computed(() => store.isSingleMonthView);
-const singleMonthKpis = computed(() => store.singleMonthKpis);
-
-// Function to format month picker display
-const formatMonthPicker = (date: { month: number; year: number }) => {
-  const monthName = new Date(date.year, date.month).toLocaleString('default', { month: 'long' });
-  return `${monthName} ${date.year}`;
-};
-
-const yearPickerKey = computed(() => store.availableYears.join('-'));
-
 const yearRange = computed((): [number, number] => {
-  if (store.availableYears.length === 0) {
-    return [2000, 2100]; // Fallback if no years are available yet
-  }
-  const firstYear = parseInt(store.availableYears[0]);
-  const lastYear = parseInt(store.availableYears[store.availableYears.length - 1]);
-  
-  if (isNaN(firstYear) || isNaN(lastYear)) {
-    console.warn('Invalid year value detected in availableYears, falling back to default range.');
-    return [2000, 2100];
-  }
-  
+  if (store.allAvailableYears.length === 0) return [2024, 2026];
+  const firstYear = parseInt(store.allAvailableYears[0]);
+  const lastYear = parseInt(store.allAvailableYears[store.allAvailableYears.length - 1]);
+  if (isNaN(firstYear) || isNaN(lastYear)) return [2024, 2026];
   return [firstYear, lastYear];
 });
 
+// --- Computed properties for Annual Performance Filters ---
+const annualSelectedYearForPicker = computed({
+  get: () => store.annualSelectedYear ? store.annualSelectedYear : null,
+  set: (val: { year: number; month: number } | number | null) => {
+    let yearString: string | null = null;
+    if (typeof val === 'number') {
+      yearString = val.toString();
+    } else if (val && typeof val === 'object' && 'year' in val) {
+      yearString = val.year.toString();
+    }
+    store.annualSelectedYear = yearString;
+  },
+});
+
+// --- Computed properties for Monthly Deep Dive Filters ---
+const monthlySelectedMonthForPicker = computed({
+  get: () => store.monthlySelectedMonth ? { year: parseInt(store.monthlySelectedMonth.year), month: parseInt(store.monthlySelectedMonth.month) - 1 } : null,
+  set: (val) => {
+    if (val && typeof val === 'object' && 'year' in val && 'month' in val && val.month !== undefined) {
+      store.monthlySelectedMonth = {
+        year: val.year.toString(),
+        month: (val.month + 1).toString().padStart(2, '0'),
+      };
+    } else {
+      store.monthlySelectedMonth = null;
+    }
+  },
+});
+
+// --- Data for Charts and KPIs ---
+const annualChartData = computed(() => store.annualChartData);
+const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
+const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans">
-    <div class="max-w-7xl mx-auto space-y-12">
+  <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans w-full">
+    <div class="space-y-12">
       
-      <!-- Header and Filters -->
-      <header class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
-        <h1 class="text-2xl font-bold text-slate-800">Sale Performance Dashboard</h1>
-        
-        <div class="flex flex-col md:flex-row items-center gap-4">
-          <!-- Year Filter -->
-          <div class="w-40">
-            <VueDatePicker
-              v-if="store.availableYears.length > 0"
-              :key="yearPickerKey"
-              v-model="selectedYearForPicker"
-              year-picker
-              auto-apply
-              placeholder="Select Year"
-              :clearable="true"
-              :year-range="yearRange"
-            />
-            <div v-else class="h-9 w-full bg-slate-200 rounded-lg animate-pulse"></div>
-          </div>
-          
-          <!-- Month Filter -->
-          <div class="w-48">
-            <VueDatePicker
-              v-model="selectedMonthForPicker"
-              month-picker
-              auto-apply
-              placeholder="Select Month"
-              :clearable="true"
-              :format="formatMonthPicker"
-              :min-date="store.selectedYear ? { year: parseInt(store.selectedYear), month: parseInt(store.availableMonths[0] || '1') - 1 } : undefined"
-              :max-date="store.selectedYear ? { year: parseInt(store.selectedYear), month: parseInt(store.availableMonths[store.availableMonths.length - 1] || '12') - 1 } : undefined"
-            />
-          </div>
-          
-          <button
-            v-if="store.selectedYear || store.selectedMonth"
-            @click="store.selectedYear = null; store.selectedMonth = null;"
-            class="text-sm text-blue-600 hover:text-blue-800 font-semibold"
-          >
-            Clear All Filters
-          </button>
-        </div>
-      </header>
-      
+      <!-- Loading State -->
       <div v-if="!store.saasMetricsData" class="text-center p-12 text-slate-500 text-lg">
         Loading SaaS Metrics Data...
       </div>
-      <div v-else-if="filteredData.length === 0" class="text-center p-12 text-slate-500 text-lg">
-        No data available for the selected period.
+      <div v-else-if="store.allAvailableYears.length === 0" class="text-center p-12 text-slate-500 text-lg">
+        No data available. Please sync from source.
       </div>
+      
       <div v-else>
-        <!-- Monthly Deep Dive Section (KPI Cards) -->
-        <section v-if="isSingleMonthView && singleMonthKpis" class="mb-12">
-          <h2 class="text-3xl font-black text-slate-800 mb-6">
-            Monthly Deep Dive: {{ singleMonthKpis.label }}
-          </h2>
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            <!-- KPI Card: MRR -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border">
-              <p class="text-sm font-bold text-slate-500">MRR</p>
-              <h3 class="text-3xl font-extrabold text-blue-600 mt-2">
-                {{ formatCurrency(singleMonthKpis.mrr) }}
-              </h3>
-            </div>
-            <!-- KPI Card: NRR -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border">
-              <p class="text-sm font-bold text-slate-500">NRR</p>
-              <h3 class="text-3xl font-extrabold" :class="singleMonthKpis.nrrPercent >= 100 ? 'text-green-600' : 'text-red-500'">
-                {{ formatPercentage(singleMonthKpis.nrrPercent) }}
-              </h3>
-            </div>
-            <!-- KPI Card: Profit -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border">
-              <p class="text-sm font-bold text-slate-500">Actual Profit</p>
-              <h3 class="text-3xl font-extrabold text-sky-600 mt-2">
-                {{ formatCurrency(singleMonthKpis.actualProfit) }}
-              </h3>
-            </div>
-            <!-- KPI Card: New Clients -->
-            <div class="bg-white p-6 rounded-2xl shadow-md border">
-              <p class="text-sm font-bold text-slate-500">New Clients</p>
-              <h3 class="text-3xl font-extrabold text-violet-600 mt-2">
-                +{{ singleMonthKpis.newClientsTotal }}
-              </h3>
+        <!-- Annual Performance Section -->
+        <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 mb-12">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <h2 class="text-2xl font-bold text-slate-800">Annual Performance</h2>
+            <div class="flex items-center gap-4">
+              <!-- Annual Year Filter -->
+              <div class="w-40">
+                <VueDatePicker
+                  v-if="store.allAvailableYears.length > 0"
+                  v-model="annualSelectedYearForPicker"
+                  year-picker
+                  auto-apply
+                  placeholder="2026"
+                  :clearable="true"
+                  :year-range="yearRange"
+                />
+                <div v-else class="h-9 w-full bg-slate-200 rounded-lg animate-pulse"></div>
+              </div>
             </div>
           </div>
           
-          <!-- Additional Monthly Deep Dive Charts (if needed) -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+          <div v-if="annualChartData.length === 0" class="text-center p-8 text-slate-500">
+            No annual data available for the selected year.
+          </div>
+          <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-              <h3 class="text-xl font-bold text-slate-800 mb-4">Monthly MRR Breakdown</h3>
-              <div class="grid grid-cols-2 gap-4 text-center">
-                <div class="p-4 bg-blue-50 rounded-lg">
-                  <p class="text-sm text-slate-600">Expansion</p>
-                  <p class="text-lg font-bold text-green-600">{{ formatCurrency(singleMonthKpis.expansion) }}</p>
-                </div>
-                <div class="p-4 bg-blue-50 rounded-lg">
-                  <p class="text-sm text-slate-600">Churn</p>
-                  <p class="text-lg font-bold text-red-600">{{ formatCurrency(singleMonthKpis.churnAmount) }}</p>
-                </div>
-                <div class="p-4 bg-blue-50 rounded-lg col-span-2">
-                  <p class="text-sm text-slate-600">Contraction</p>
-                  <p class="text-lg font-bold text-orange-600">{{ formatCurrency(singleMonthKpis.contraction) }}</p>
-                </div>
+              <h3 class="text-xl font-bold text-slate-800 mb-4">Business Health Trend (NRR, GRR, Churn Rate)</h3>
+              <div class="h-[350px]">
+                <BusinessHealthTrendChart :chart-data="annualChartData" />
               </div>
             </section>
+            
             <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-              <h3 class="text-xl font-bold text-slate-800 mb-4">Monthly Client Acquisition</h3>
-              <div class="grid grid-cols-2 gap-4 text-center">
-                <div class="p-4 bg-blue-50 rounded-lg">
-                  <p class="text-sm text-slate-600">Organic</p>
-                  <p class="text-lg font-bold text-blue-600">{{ singleMonthKpis.newClientsOrganic }}</p>
-                </div>
-                <div class="p-4 bg-blue-50 rounded-lg">
-                  <p class="text-sm text-slate-600">Partner</p>
-                  <p class="text-lg font-bold text-violet-600">{{ singleMonthKpis.newClientsBusinessPartner }}</p>
-                </div>
+              <h3 class="text-xl font-bold text-slate-800 mb-4">Profitability: Actual vs. Target</h3>
+              <div class="h-[350px]">
+                <ProfitabilityChart :chart-data="annualChartData" />
+              </div>
+            </section>
+            
+            <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+              <h3 class="text-xl font-bold text-slate-800 mb-4">MRR Movement Analysis</h3>
+              <div class="h-[450px]">
+                <MRRMovementChart :chart-data="annualChartData" />
+              </div>
+            </section>
+            
+            <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+              <h3 class="text-xl font-bold text-slate-800 mb-4">New Client Acquisition Mix</h3>
+              <div class="h-[350px]">
+                <AcquisitionMixChart :chart-data="annualChartData" />
               </div>
             </section>
           </div>
         </section>
         
-        <!-- Annual Performance Section (Charts) -->
-        <div v-else class="space-y-12">
-          <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Business Health Trend (NRR, GRR, Churn Rate)</h2>
-            <div class="h-[350px]">
-              <BusinessHealthTrendChart :chart-data="filteredData" />
+        <!-- Monthly Deep Dive Section -->
+        <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
+            <h2 class="text-2xl font-bold text-slate-800">Monthly Deep Dive</h2>
+            <div class="flex items-center gap-4">
+              <!-- Monthly Month Filter -->
+              <div class="w-48">
+                <VueDatePicker
+                  v-if="store.allAvailableYears.length > 0"
+                  v-model="monthlySelectedMonthForPicker"
+                  month-picker
+                  auto-apply
+                  placeholder="01/2026"
+                  :clearable="true"
+                  :year-range="yearRange"
+                />
+                <div v-else class="h-9 w-full bg-slate-200 rounded-lg animate-pulse"></div>
+              </div>
             </div>
-          </section>
+          </div>
           
-          <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">Profitability: Actual vs. Target</h2>
-            <div class="h-[350px]">
-              <ProfitabilityChart :chart-data="filteredData" />
+          <div v-if="monthlyDeepDiveData.length === 0" class="text-center p-8 text-slate-500">
+            No monthly data available for the selected period.
+          </div>
+          <div v-else-if="monthlyDeepDiveKpis" class="mb-12">
+            <h3 class="text-xl font-bold text-slate-800 mb-6">KPIs for {{ monthlyDeepDiveKpis.label }}</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <!-- KPI Card: MRR -->
+              <div class="bg-white p-6 rounded-2xl shadow-md border">
+                <p class="text-sm font-bold text-slate-500">MRR</p>
+                <h4 class="text-3xl font-extrabold text-blue-600 mt-2">
+                  {{ formatCurrency(monthlyDeepDiveKpis.mrr) }}
+                </h4>
+              </div>
+              <!-- KPI Card: NRR -->
+              <div class="bg-white p-6 rounded-2xl shadow-md border">
+                <p class="text-sm font-bold text-slate-500">NRR</p>
+                <h4 class="text-3xl font-extrabold" :class="monthlyDeepDiveKpis.nrrPercent >= 100 ? 'text-green-600' : 'text-red-500'">
+                  {{ formatPercentage(monthlyDeepDiveKpis.nrrPercent) }}
+                </h4>
+              </div>
+              <!-- KPI Card: Profit -->
+              <div class="bg-white p-6 rounded-2xl shadow-md border">
+                <p class="text-sm font-bold text-slate-500">Actual Profit</p>
+                <h4 class="text-3xl font-extrabold text-sky-600 mt-2">
+                  {{ formatCurrency(monthlyDeepDiveKpis.actualProfit) }}
+                </h4>
+              </div>
+              <!-- KPI Card: New Clients -->
+              <div class="bg-white p-6 rounded-2xl shadow-md border">
+                <p class="text-sm font-bold text-slate-500">New Clients</p>
+                <h4 class="text-3xl font-extrabold text-violet-600 mt-2">
+                  +{{ monthlyDeepDiveKpis.newClientsTotal }}
+                </h4>
+              </div>
             </div>
-          </section>
-          
-          <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">MRR Movement Analysis</h2>
-            <div class="h-[450px]">
-              <MRRMovementChart :chart-data="filteredData" />
+            
+            <!-- Additional Monthly Deep Dive Charts (if needed) -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
+              <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">Monthly MRR Breakdown</h3>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-slate-600">Expansion</p>
+                    <p class="text-lg font-bold text-green-600">{{ formatCurrency(monthlyDeepDiveKpis.expansion) }}</p>
+                  </div>
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-slate-600">Churn</p>
+                    <p class="text-lg font-bold text-red-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
+                  </div>
+                  <div class="p-4 bg-blue-50 rounded-lg col-span-2">
+                    <p class="text-sm text-slate-600">Contraction</p>
+                    <p class="text-lg font-bold text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
+                  </div>
+                </div>
+              </section>
+              <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+                <h3 class="text-xl font-bold text-slate-800 mb-4">Monthly Client Acquisition</h3>
+                <div class="grid grid-cols-2 gap-4 text-center">
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-slate-600">Organic</p>
+                    <p class="text-lg font-bold text-blue-600">{{ monthlyDeepDiveKpis.newClientsOrganic }}</p>
+                  </div>
+                  <div class="p-4 bg-blue-50 rounded-lg">
+                    <p class="text-sm text-slate-600">Partner</p>
+                    <p class="text-lg font-bold text-violet-600">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</p>
+                  </div>
+                </div>
+              </section>
             </div>
-          </section>
-          
-          <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-            <h2 class="text-xl font-bold text-slate-800 mb-4">New Client Acquisition Mix</h2>
-            <div class="h-[350px]">
-              <AcquisitionMixChart :chart-data="filteredData" />
-            </div>
-          </section>
-        </div>
+          </div>
+          <div v-else class="text-center p-8 text-slate-500">
+            Select a specific month to view deep dive KPIs.
+          </div>
+        </section>
       </div>
     </div>
   </div>

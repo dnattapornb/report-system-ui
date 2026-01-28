@@ -1,14 +1,14 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
-import apiClient from '../services/api'; // Path to your API client
-import { socket } from '../services/socket'; // Path to your Socket.io client
-import type { SaaSMetricsData, SaaSMetricItem } from '../types/report';
+import apiClient from '../services/api';
+import { socket } from '../services/socket';
+import type { SaaSMetricsData } from '../types/report';
 
 export const useSaasMetricsStore = defineStore('saasMetrics', () => {
-  // --- State ---
   const saasMetricsData = ref<SaaSMetricsData | null>(null);
-  const selectedYear = ref<string | null>(null); // '2024', '2025', or null for all years
-  const selectedMonth = ref<{ year: string; month: string } | null>(null); // { year: '2024', month: '01' } or null for all months
+
+  const annualSelectedYear = ref<string | null>(null);
+  const monthlySelectedMonth = ref<{ year: string; month: string } | null>(null);
 
   // --- Actions ---
   async function fetchAndConnect() {
@@ -23,14 +23,19 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       saasMetricsData.value = response.data;
       console.log('SaaS Metrics data loaded successfully:', saasMetricsData.value);
 
-      // Set initial selected year to the latest available year
+      // Set initial selected year for both sections to the latest available year
       if (saasMetricsData.value) {
         const years = Object.keys(saasMetricsData.value).sort((a, b) => parseInt(b) - parseInt(a));
-        if (years.length > 0) {
-          selectedYear.value = years[0]; // Select the latest year by default
-        }
-      }
 
+        if (years.length > 0) {
+          annualSelectedYear.value = years[0] || 2026;
+          monthlySelectedMonth.value = {
+            year: years[0] || 2026,
+            month: 2,
+          };
+        }
+        console.log('init annualSelectedYear =>', annualSelectedYear.value);
+      }
     } catch (err) {
       console.error('Failed to load initial SaaS metrics data', err);
     }
@@ -39,52 +44,35 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
       console.log('[Synced] Real-time SaaS Metrics updated via WebSocket');
       saasMetricsData.value = newData;
-      // Re-apply filter if data updates
-      if (selectedYear.value && !saasMetricsData.value[selectedYear.value]) {
-        selectedYear.value = null; // Clear year filter if selected year no longer exists
-      }
-      if (selectedMonth.value && !saasMetricsData.value[selectedMonth.value.year]?.[selectedMonth.value.month]) {
-        selectedMonth.value = null; // Clear month filter if selected month no longer exists
+      // Re-apply filter if data updates and selected year/month no longer exist
+      if (annualSelectedYear.value && !saasMetricsData.value[annualSelectedYear.value]) {
+        annualSelectedYear.value = null;
       }
     });
   }
 
   // --- Getters ---
 
-  // All available years from the data
-  const availableYears = computed(() => {
+  // All available years from the data (used by both pickers)
+  const allAvailableYears = computed(() => {
     if (!saasMetricsData.value) return [];
     const years = Object.keys(saasMetricsData.value).sort((a, b) => parseInt(a) - parseInt(b));
-    console.log('Computed availableYears:', years);
+    console.log('Pinia Store: Computed allAvailableYears:', years);
     return years;
   });
 
-  // All available months for a given year
-  const availableMonths = computed(() => {
-    if (!saasMetricsData.value || !selectedYear.value) return [];
-    const months = saasMetricsData.value[selectedYear.value];
-    if (!months) return [];
-    return Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
-  });
-
-  // Flattened and sorted data for easier processing in charts
-  const sortedMonthlyData = computed(() => {
+  const annualChartData = computed(() => {
     if (!saasMetricsData.value) return [];
 
     let dataToProcess: SaaSMetricsData = saasMetricsData.value;
 
-    // Apply year filter
-    if (selectedYear.value && dataToProcess[selectedYear.value]) {
-      dataToProcess = { [selectedYear.value]: dataToProcess[selectedYear.value] };
-    }
-
-    // Apply month filter (if both year and month are selected)
-    if (selectedMonth.value && dataToProcess[selectedMonth.value.year]?.[selectedMonth.value.month]) {
-      dataToProcess = {
-        [selectedMonth.value.year]: {
-          [selectedMonth.value.month]: dataToProcess[selectedMonth.value.year][selectedMonth.value.month],
-        },
-      };
+    // Apply annual year filter
+    if (annualSelectedYear.value && dataToProcess[annualSelectedYear.value]) {
+      dataToProcess = { [annualSelectedYear.value]: dataToProcess[annualSelectedYear.value] };
+    } else if (annualSelectedYear.value === null) {
+      // If no year is selected, show all years (or a default set like latest 3 years)
+      // For now, let's show all available years if no specific year is selected
+      // You might want to implement a limit here, e.g., show only latest 3 years
     }
 
     return Object.entries(dataToProcess)
@@ -99,13 +87,37 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       .sort((a, b) => new Date(`${a.year}-${a.month}-01`).getTime() - new Date(`${b.year}-${b.month}-01`).getTime());
   });
 
-  // Check if the current view is for a single month (for KPI cards)
-  const isSingleMonthView = computed(() => sortedMonthlyData.value.length === 1);
+  const monthlyDeepDiveData = computed(() => {
+    if (!saasMetricsData.value) return [];
 
-  // Data for single month KPI cards
-  const singleMonthKpis = computed(() => {
-    if (!isSingleMonthView.value) return null;
-    const data = sortedMonthlyData.value[0];
+    let dataToProcess: SaaSMetricsData = saasMetricsData.value;
+
+    // Apply monthly month filter (if both year and month are selected)
+    if (monthlySelectedMonth.value && dataToProcess[monthlySelectedMonth.value.year]?.[monthlySelectedMonth.value.month]) {
+      dataToProcess = {
+        [monthlySelectedMonth.value.year]: {
+          [monthlySelectedMonth.value.month]: dataToProcess[monthlySelectedMonth.value.year][monthlySelectedMonth.value.month],
+        },
+      };
+    } else {
+      // If no year or month is selected for monthly, return empty
+      return [];
+    }
+
+    return Object.entries(dataToProcess)
+      .flatMap(([year, months]) =>
+        Object.entries(months).map(([month, data]) => ({
+          ...data,
+          year,
+          month,
+          label: `${new Date(Date.parse(month + ' 1, 2012')).toLocaleString('default', { month: 'short' })}-${year.slice(2)}`,
+        })),
+      )
+      .sort((a, b) => new Date(`${a.year}-${a.month}-01`).getTime() - new Date(`${b.year}-${b.month}-01`).getTime());
+  });
+
+  const monthlyDeepDiveKpis = computed(() => {
+    const data = monthlyDeepDiveData.value[0];
     return {
       label: data.label,
       mrr: data.mrr,
@@ -125,13 +137,12 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
   return {
     saasMetricsData,
-    selectedYear,
-    selectedMonth,
+    annualSelectedYear,
+    monthlySelectedMonth,
     fetchAndConnect,
-    availableYears,
-    availableMonths,
-    sortedMonthlyData,
-    isSingleMonthView,
-    singleMonthKpis,
+    allAvailableYears,
+    annualChartData,
+    monthlyDeepDiveData,
+    monthlyDeepDiveKpis,
   };
 });
