@@ -117,21 +117,29 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
   });
 
   const monthlyDeepDiveKpis = computed(() => {
+    if (!monthlyDeepDiveData.value || monthlyDeepDiveData.value.length === 0) return null;
     const data = monthlyDeepDiveData.value[0];
     return {
       label: data.label,
       mrr: data.mrr,
+      expansion: data.expansion,
+      churnAmount: data.churnAmount,
+      contraction: data.contraction,
       nrrPercent: data.nrrPercent,
       grrPercent: data.grrPercent,
       churnRatePercent: data.churnRatePercent,
       actualProfit: data.actualProfit,
       targetProfit: data.targetProfit,
-      newClientsTotal: data.newClientsOrganic + data.newClientsBusinessPartner,
-      expansion: data.expansion,
-      churnAmount: data.churnAmount,
-      contraction: data.contraction,
+      totalRevenue: data.totalRevenue,
       newClientsOrganic: data.newClientsOrganic,
       newClientsBusinessPartner: data.newClientsBusinessPartner,
+      newClientsTotal: data.newClientsOrganic + data.newClientsBusinessPartner,
+      clientsDropOut: data.clientsDropOut,
+      clientsFreeTrial: data.clientsFreeTrial,
+      clientsPendingSetup: data.clientsPendingSetup,
+      actualHotels: data.actualHotels,
+      targetHotels: data.targetHotels,
+      totalSalesRep: data.totalSalesRep,
     };
   });
 
