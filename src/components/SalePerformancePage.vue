@@ -13,6 +13,7 @@ import AcquisitionMixChart from './charts/AcquisitionMixChart.vue';
 import TargetAchievementChart from './charts/TargetAchievementChart.vue';
 import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
+import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 
 const store = useSaasMetricsStore();
 
@@ -97,6 +98,13 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
             No annual data available for the selected year.
           </div>
           <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+              <h3 class="text-xl font-bold text-slate-800 mb-4">Total Revenue Trend</h3>
+              <div class="h-[350px]">
+                <TotalRevenueChart :chart-data="annualChartData" />
+              </div>
+            </section>
+
             <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
               <h3 class="text-xl font-bold text-slate-800 mb-4">Business Health Trend (NRR, GRR, Churn Rate)</h3>
               <div class="h-[350px]">
