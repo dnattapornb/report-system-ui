@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useSaasMetricsStore } from './stores/saasMetricsStore';
-import SalePerformancePage from './components/SalePerformancePage.vue';
+import SalePerformancePage from './components/SalePerformance.vue';
 
 const store = useSaasMetricsStore();
 
