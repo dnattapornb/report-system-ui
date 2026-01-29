@@ -14,6 +14,8 @@ import TargetAchievementChart from './charts/TargetAchievementChart.vue';
 import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
+import MRRWaterfallChart from './charts/MRRWaterfallChart.vue';
+import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
 
 const store = useSaasMetricsStore();
 
@@ -99,8 +101,8 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
           </div>
-
-          <!-- ✨ Annual YoY Comparison Cards -->
+          
+          <!-- Annual YoY Comparison Cards -->
           <div v-if="annualComparison" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
             <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-slate-50 p-5 rounded-2xl border border-slate-100 relative overflow-hidden">
               <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ key }} (Annual)</p>
@@ -128,7 +130,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <TotalRevenueChart :chart-data="annualChartData" />
               </div>
             </section>
-
+            
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
               <div class="h-[300px]">
@@ -206,13 +208,14 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
           <div v-if="monthlyDeepDiveData.length === 0" class="text-center p-8 text-slate-500">
             No monthly data available for the selected period.
           </div>
-          <div v-else-if="monthlyDeepDiveKpis" class="mb-12">
-            <h3 class="text-xl font-bold text-slate-800 mb-6 flex items-center gap-2">
+          <div v-else-if="monthlyDeepDiveKpis" class="space-y-8">
+            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
               <span class="p-2 bg-blue-50 text-blue-600 rounded-lg text-sm">📊</span>
               KPIs for {{ monthlyDeepDiveKpis.label }}
             </h3>
             
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+            <!-- KPI Grid Row 1: Financials -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">MRR</p>
                 <h4 class="text-2xl font-black text-blue-600 mt-2">
@@ -239,6 +242,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
             
+            <!-- KPI Grid Row 2: Operational -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pipeline</p>
@@ -275,38 +279,73 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <p class="text-[10px] text-slate-400 mt-1">Clients Lost</p>
               </div>
             </div>
-            
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mt-6">
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">Monthly MRR Breakdown</h3>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Expansion</p>
-                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.expansion) }}</p>
+
+            <!-- Monthly Deep Dive Charts -->
+            <div class="space-y-6">
+              <!-- MRR Waterfall (Full Width) -->
+              <!--<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">-->
+              <!--  <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly MRR Movement (Waterfall)</h3>-->
+              <!--  <div class="h-[400px]">-->
+              <!--    <MRRWaterfallChart-->
+              <!--      :mrr="monthlyDeepDiveKpis.mrr"-->
+              <!--      :expansion="monthlyDeepDiveKpis.expansion"-->
+              <!--      :churn="monthlyDeepDiveKpis.churnAmount"-->
+              <!--      :contraction="monthlyDeepDiveKpis.contraction"-->
+              <!--    />-->
+              <!--  </div>-->
+              <!--</section>-->
+              
+              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- ✨ Monthly MRR Breakdown (Expansion, Churn, Contraction Cards) -->
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly MRR Breakdown</h3>
+                  <div class="grid grid-cols-1 gap-4 text-center">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Expansion</p>
+                      <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.expansion) }}</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
+                      <p class="text-lg font-black text-rose-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Contraction</p>
+                      <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
+                    </div>
                   </div>
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
-                    <p class="text-lg font-black text-rose-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
+                </section>
+
+                <!-- Monthly Client Acquisition -->
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Client Acquisition</h3>
+                  <div class="grid grid-cols-1 gap-4 text-center">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Organic</p>
+                      <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.newClientsOrganic }}</p>
+                    </div>
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner</p>
+                      <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</p>
+                    </div>
+                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                      <p class="text-xs text-blue-500 font-bold uppercase tracking-tighter">Total New</p>
+                      <p class="text-lg font-black text-blue-700">{{ monthlyDeepDiveKpis.totalNewClients }}</p>
+                    </div>
                   </div>
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 col-span-2">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Contraction</p>
-                    <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
+                </section>
+
+                <!-- Hotel Status Pie Chart -->
+                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
+                  <div class="h-[300px]">
+                    <HotelStatusPieChart
+                      :actual="monthlyDeepDiveKpis.actualHotels"
+                      :pending="monthlyDeepDiveKpis.clientsPendingSetup"
+                      :drop-out="monthlyDeepDiveKpis.clientsDropOut"
+                    />
                   </div>
-                </div>
-              </section>
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">Monthly Client Acquisition</h3>
-                <div class="grid grid-cols-2 gap-4 text-center">
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Organic</p>
-                    <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.newClientsOrganic }}</p>
-                  </div>
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner</p>
-                    <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</p>
-                  </div>
-                </div>
-              </section>
+                </section>
+              </div>
             </div>
           </div>
           <div v-else class="text-center p-8 text-slate-500">
