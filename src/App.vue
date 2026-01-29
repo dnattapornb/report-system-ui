@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import { useSaasMetricsStore } from './stores/saasMetricsStore';
-import SalePerformancePage from './components/SalePerformance.vue';
+import SalePerformance from './components/SalePerformance.vue';
 
 const store = useSaasMetricsStore();
 
@@ -13,6 +13,6 @@ onMounted(() => {
 
 <template>
   <div id="app" class="w-full min-h-screen">
-    <SalePerformancePage />
+    <SalePerformance />
   </div>
 </template>
