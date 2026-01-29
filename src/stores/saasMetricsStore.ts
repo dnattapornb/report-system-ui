@@ -12,9 +12,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
   // --- Actions ---
   async function fetchAndConnect() {
-    if (saasMetricsData.value) {
-      return;
-    }
+    if (saasMetricsData.value) return;
 
     try {
       const response = await apiClient.get('/reports');
@@ -28,32 +26,19 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
         if (saasMetricsData.value[currentYearStr]) {
           annualSelectedYear.value = currentYearStr;
         } else {
-          // Fallback to latest available year
           const years = Object.keys(saasMetricsData.value).sort((a, b) => parseInt(b) - parseInt(a));
           annualSelectedYear.value = years[0] || null;
         }
 
         if (saasMetricsData.value[currentYearStr]?.[currentMonthStr]) {
-          monthlySelectedMonth.value = {
-            year: currentYearStr,
-            month: currentMonthStr,
-          };
+          monthlySelectedMonth.value = { year: currentYearStr, month: currentMonthStr };
         } else {
-          // Fallback to latest available month of the selected annual year
           const yearToUse = annualSelectedYear.value;
           if (yearToUse && saasMetricsData.value[yearToUse]) {
             const months = Object.keys(saasMetricsData.value[yearToUse]).sort((a, b) => parseInt(b) - parseInt(a));
-            monthlySelectedMonth.value = {
-              year: yearToUse,
-              month: months[0] || '01',
-            };
+            monthlySelectedMonth.value = { year: yearToUse, month: months[0] || '01' };
           }
         }
-
-        console.log('Initialized Filters:', {
-          annual: annualSelectedYear.value,
-          monthly: monthlySelectedMonth.value
-        });
       }
     } catch (err) {
       console.error('Failed to load initial SaaS metrics data', err);
@@ -61,9 +46,6 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
     socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
       saasMetricsData.value = newData;
-      if (annualSelectedYear.value && !saasMetricsData.value[annualSelectedYear.value]) {
-        annualSelectedYear.value = null;
-      }
     });
   }
 
@@ -89,6 +71,75 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
         })),
       )
       .sort((a, b) => new Date(`${a.year}-${a.month}-01`).getTime() - new Date(`${b.year}-${b.month}-01`).getTime());
+  });
+
+  // ✨ New: Annual Comparison (YoY)
+  const annualComparison = computed(() => {
+    if (!saasMetricsData.value || !annualSelectedYear.value) return null;
+
+    const currentYear = annualSelectedYear.value;
+    const prevYear = (parseInt(currentYear) - 1).toString();
+
+    const calculateYearlyTotals = (year: string) => {
+      const months = saasMetricsData.value![year];
+      if (!months) return null;
+
+      const totals = {
+        totalRevenue: 0,
+        totalProfit: 0,
+        newClients: 0,
+        avgMrr: 0,
+        monthCount: 0,
+      };
+
+      Object.values(months).forEach((m) => {
+        totals.totalRevenue += m.totalRevenue;
+        totals.totalProfit += m.actualProfit;
+        totals.newClients += m.newClientsOrganic + m.newClientsBusinessPartner;
+        totals.avgMrr += m.mrr;
+        totals.monthCount++;
+      });
+
+      if (totals.monthCount > 0) totals.avgMrr /= totals.monthCount;
+      return totals;
+    };
+
+    const currentTotals = calculateYearlyTotals(currentYear);
+    const prevTotals = calculateYearlyTotals(prevYear);
+
+    if (!currentTotals) return null;
+
+    const calculateGrowth = (current: number, prev: number | undefined) => {
+      if (!prev || prev === 0) return null;
+      return ((current - prev) / prev) * 100;
+    };
+
+    return {
+      currentYear,
+      prevYear,
+      metrics: {
+        revenue: {
+          current: currentTotals.totalRevenue,
+          prev: prevTotals?.totalRevenue,
+          growth: calculateGrowth(currentTotals.totalRevenue, prevTotals?.totalRevenue),
+        },
+        profit: {
+          current: currentTotals.totalProfit,
+          prev: prevTotals?.totalProfit,
+          growth: calculateGrowth(currentTotals.totalProfit, prevTotals?.totalProfit),
+        },
+        newClients: {
+          current: currentTotals.newClients,
+          prev: prevTotals?.newClients,
+          growth: calculateGrowth(currentTotals.newClients, prevTotals?.newClients),
+        },
+        mrr: {
+          current: currentTotals.avgMrr,
+          prev: prevTotals?.avgMrr,
+          growth: calculateGrowth(currentTotals.avgMrr, prevTotals?.avgMrr),
+        },
+      },
+    };
   });
 
   const monthlyDeepDiveData = computed(() => {
@@ -132,7 +183,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       totalRevenue: data.totalRevenue,
       newClientsOrganic: data.newClientsOrganic,
       newClientsBusinessPartner: data.newClientsBusinessPartner,
-      newClientsTotal: data.newClientsOrganic + data.newClientsBusinessPartner,
+      totalNewClients: data.newClientsOrganic + data.newClientsBusinessPartner,
       clientsDropOut: data.clientsDropOut,
       clientsFreeTrial: data.clientsFreeTrial,
       clientsPendingSetup: data.clientsPendingSetup,
@@ -156,6 +207,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     fetchAndConnect,
     allAvailableYears,
     annualChartData,
+    annualComparison,
     monthlyDeepDiveData,
     monthlyDeepDiveKpis,
     monthlyAvailableMonths,
