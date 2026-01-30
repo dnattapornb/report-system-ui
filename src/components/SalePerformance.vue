@@ -279,7 +279,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
 
-            <!-- ✨ KPI Grid Row 3: Hotel Portfolio Details (New) -->
+            <!-- KPI Grid Row 3: Hotel Portfolio Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
@@ -298,7 +298,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
 
-            <!-- ✨ KPI Grid Row 4: New Acquisition & Churn Details (New) -->
+            <!-- KPI Grid Row 4: New Acquisition & Churn Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
                 <p class="text-[10px] font-bold text-blue-400 uppercase mb-1">Total New</p>
