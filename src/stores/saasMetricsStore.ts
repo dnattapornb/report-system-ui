@@ -4,14 +4,40 @@ import apiClient from '../services/api';
 import { socket } from '../services/socket';
 import type { SaaSMetricsData } from '../types/report';
 
+export interface OnlineUser {
+  id: string;
+  ip: string;
+  browser: string;
+  os: string;
+  device: string;
+  connectedAt: string; // Date string
+}
+
 export const useSaasMetricsStore = defineStore('saasMetrics', () => {
   const saasMetricsData = ref<SaaSMetricsData | null>(null);
+
+  // ✨ New State for Online Users
+  const onlineUsers = ref<OnlineUser[]>([]);
+  const onlineUsersCount = ref<number>(0);
 
   const annualSelectedYear = ref<string | null>(null);
   const monthlySelectedMonth = ref<{ year: string; month: string } | null>(null);
 
   // --- Actions ---
   async function fetchAndConnect() {
+    // Connect to WebSocket for real-time updates (Metrics)
+    socket.on('update:saas:metrics', (newData: SaaSMetricsData) => {
+      console.log('[Synced] Real-time SaaS Metrics updated via WebSocket');
+      saasMetricsData.value = newData;
+    });
+
+    // ✨ Connect to WebSocket for Online Users
+    socket.on('update:online:users', (data: { count: number; users: OnlineUser[] }) => {
+      console.log('[Synced] Online Users updated:', data);
+      onlineUsersCount.value = data.count;
+      onlineUsers.value = data.users;
+    });
+
     if (saasMetricsData.value) return;
 
     try {
@@ -43,12 +69,6 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     } catch (err) {
       console.error('Failed to load initial SaaS metrics data', err);
     }
-
-    // Update Event Name to match Backend: 'update:saas:metrics'
-    socket.on('update:saas:metrics', (newData: SaaSMetricsData) => {
-      console.log('[Synced] Real-time SaaS Metrics updated via WebSocket');
-      saasMetricsData.value = newData;
-    });
   }
 
   // --- Getters ---
@@ -75,7 +95,57 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       .sort((a, b) => new Date(`${a.year}-${a.month}-01`).getTime() - new Date(`${b.year}-${b.month}-01`).getTime());
   });
 
-  // New: Annual Comparison (YoY)
+  // ✨ Re-added: Hotel Waterfall Data (Detailed Breakdown)
+  const hotelWaterfallData = computed(() => {
+    if (!saasMetricsData.value || !annualSelectedYear.value) return null;
+
+    const currentYear = annualSelectedYear.value;
+    const prevYear = (parseInt(currentYear) - 1).toString();
+
+    let startingBalance = 0;
+    if (saasMetricsData.value[prevYear] && saasMetricsData.value[prevYear]['12']) {
+      startingBalance = saasMetricsData.value[prevYear]['12'].actualHotels;
+    }
+
+    const months = saasMetricsData.value[currentYear];
+    if (!months) return null;
+
+    const sortedMonths = Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
+
+    const labels = [`Start (${prevYear})`];
+    const newData = [0];
+    const dropData = [0];
+    const balanceData = [startingBalance];
+
+    let currentBalance = startingBalance;
+
+    for (const month of sortedMonths) {
+      const data = months[month];
+      const newClients = data.newClientsOrganic + data.newClientsBusinessPartner;
+      const dropOut = data.clientsDropOut;
+
+      labels.push(`${new Date(Date.parse(month + ' 1, 2012')).toLocaleString('default', { month: 'short' })}`);
+      newData.push(newClients);
+      dropData.push(-dropOut);
+
+      currentBalance += newClients - dropOut;
+      balanceData.push(currentBalance);
+    }
+
+    labels.push(`End (${currentYear})`);
+    newData.push(0);
+    dropData.push(0);
+    balanceData.push(currentBalance);
+
+    return {
+      labels,
+      newData,
+      dropData,
+      balanceData,
+      startingBalance
+    };
+  });
+
   const annualComparison = computed(() => {
     if (!saasMetricsData.value || !annualSelectedYear.value) return null;
 
@@ -204,12 +274,15 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
   return {
     saasMetricsData,
+    onlineUsers, // ✨ Export state
+    onlineUsersCount, // ✨ Export state
     annualSelectedYear,
     monthlySelectedMonth,
     fetchAndConnect,
     allAvailableYears,
     annualChartData,
     annualComparison,
+    hotelWaterfallData, // ✨ Export getter
     monthlyDeepDiveData,
     monthlyDeepDiveKpis,
     monthlyAvailableMonths,

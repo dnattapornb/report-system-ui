@@ -16,6 +16,8 @@ import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import MRRWaterfallChart from './charts/MRRWaterfallChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
+// import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
+import OnlineUsersBadge from './OnlineUsersBadge.vue'; // ✨ Import OnlineUsersBadge
 
 const store = useSaasMetricsStore();
 
@@ -59,6 +61,7 @@ const monthlySelectedMonthForPicker = computed({
 // --- Data for Charts and KPIs ---
 const annualChartData = computed(() => store.annualChartData);
 const annualComparison = computed(() => store.annualComparison);
+// const hotelWaterfallData = computed(() => store.hotelWaterfallData);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
 
@@ -69,6 +72,13 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
   <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans min-w-screen">
     <div class="space-y-12">
       
+      <!-- Header with Title and Online Users Badge -->
+      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 mb-12 flex justify-between items-center">
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Sale Performance Dashboard</h2>
+        <!-- ✨ Add OnlineUsersBadge here -->
+        <OnlineUsersBadge />
+      </div>
+
       <!-- Loading State -->
       <div v-if="!store.saasMetricsData" class="text-center p-12 text-slate-500 text-lg">
         Loading SaaS Metrics Data...
@@ -139,7 +149,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
             
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Profitability: Actual vs. Target</h3>
-              <div class="h-[350px]">
+              <div class="h-[300px]">
                 <ProfitabilityChart :chart-data="annualChartData" />
               </div>
             </section>
@@ -157,6 +167,17 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <TargetAchievementChart :chart-data="annualChartData" />
               </div>
             </section>
+
+            <!-- Hotel Waterfall Chart -->
+            <!--<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">-->
+            <!--  <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Net Growth (Waterfall)</h3>-->
+            <!--  <div v-if="hotelWaterfallData" class="h-[300px]">-->
+            <!--    <HotelWaterfallChart :chart-data="hotelWaterfallData" />-->
+            <!--  </div>-->
+            <!--  <div v-else class="h-[300px] flex items-center justify-center text-slate-400 italic">-->
+            <!--    Not enough data for waterfall.-->
+            <!--  </div>-->
+            <!--</section>-->
             
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Efficiency (Avg. Sales / Rep)</h3>
@@ -279,7 +300,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
 
-            <!-- KPI Grid Row 3: Hotel Portfolio Details (New) -->
+            <!-- ✨ KPI Grid Row 3: Hotel Portfolio Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
@@ -298,7 +319,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
 
-            <!-- KPI Grid Row 4: New Acquisition & Churn Details (New) -->
+            <!-- ✨ KPI Grid Row 4: New Acquisition & Churn Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
                 <p class="text-[10px] font-bold text-blue-400 uppercase mb-1">Total New</p>

@@ -9,7 +9,7 @@ export function initWebSocket(callback: (data: SaaSMetricsData) => void) {
   }
   updateCallback = callback;
 
-  socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
+  socket.on('update:saas:metrics', (newData: SaaSMetricsData) => {
     if (updateCallback) {
       updateCallback(newData);
     }
@@ -20,7 +20,7 @@ export function initWebSocket(callback: (data: SaaSMetricsData) => void) {
 
 export function closeWebSocket() {
   if (updateCallback) {
-    socket.off('update:saas-metrics', updateCallback);
+    socket.off('update:saas:metrics', updateCallback);
     updateCallback = null;
     console.log('WebSocket listener for "update:saas-metrics" closed.');
   }
