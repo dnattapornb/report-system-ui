@@ -9,7 +9,7 @@ import {
   BarElement,
   CategoryScale,
   LinearScale,
-  ChartOptions,
+  type ChartOptions, // ✨ เพิ่ม type
 } from 'chart.js';
 import { formatCurrency } from '../../utils/formatters';
 

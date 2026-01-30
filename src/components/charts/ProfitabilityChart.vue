@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, ChartOptions, LineElement, PointElement } from 'chart.js';
+import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, type ChartOptions, LineElement, PointElement } from 'chart.js'; // ✨ เพิ่ม type
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { SaaSMetricItem } from '../../types/report'; // Adjust path
 

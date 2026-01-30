@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Line } from 'vue-chartjs';
-import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, ChartOptions } from 'chart.js';
+import { Chart as ChartJS, Title, Tooltip, Legend, LineElement, PointElement, CategoryScale, LinearScale, type ChartOptions } from 'chart.js'; // ✨ เพิ่ม type
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { SaaSMetricItem } from '../../types/report'; // Adjust path
 
@@ -59,14 +59,17 @@ const chartOptions: ChartOptions = {
   scales: {
     y: {
       beginAtZero: true,
-      title: {
-        display: true,
-        text: 'Percentage (%)',
-      },
+      min: 0,
+      max: 160,
       ticks: {
+        stepSize: 20,
         callback: function(value) {
           return value + '%';
         },
+      },
+      title: {
+        display: true,
+        text: 'Percentage (%)',
       },
     },
   },

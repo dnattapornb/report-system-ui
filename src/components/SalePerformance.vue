@@ -66,7 +66,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans w-full">
+  <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans min-w-screen">
     <div class="space-y-12">
       
       <!-- Loading State -->
@@ -76,7 +76,6 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
       <div v-else-if="store.allAvailableYears.length === 0" class="text-center p-12 text-slate-500 text-lg">
         No data available. Please sync from source.
       </div>
-      
       <div v-else>
         <!-- Annual Performance Section -->
         <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 mb-12">
@@ -123,7 +122,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
           <div v-if="annualChartData.length === 0" class="text-center p-8 text-slate-500">
             No annual data available for the selected year.
           </div>
-          <div v-else class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div v-else class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Total Revenue Trend</h3>
               <div class="h-[300px]">
@@ -140,7 +139,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
             
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Profitability: Actual vs. Target</h3>
-              <div class="h-[300px]">
+              <div class="h-[350px]">
                 <ProfitabilityChart :chart-data="annualChartData" />
               </div>
             </section>
@@ -280,23 +279,53 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
               </div>
             </div>
 
+            <!-- ✨ KPI Grid Row 3: Hotel Portfolio Details (New) -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+              <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
+                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.actualHotels }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
+              </div>
+              <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Free Trial Hotels</p>
+                <h4 class="text-2xl font-black text-amber-500 mt-2">{{ monthlyDeepDiveKpis.clientsFreeTrial }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Currently trialing</p>
+              </div>
+              <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pending Hotels</p>
+                <h4 class="text-2xl font-black text-orange-500 mt-2">{{ monthlyDeepDiveKpis.clientsPendingSetup }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Waiting for setup</p>
+              </div>
+            </div>
+
+            <!-- ✨ KPI Grid Row 4: New Acquisition & Churn Details (New) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
+                <p class="text-[10px] font-bold text-blue-400 uppercase mb-1">Total New</p>
+                <h4 class="text-xl font-black text-blue-700">{{ monthlyDeepDiveKpis.totalNewClients }}</h4>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">From Organic</p>
+                <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.newClientsOrganic }}</h4>
+              </div>
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">From Partner</p>
+                <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</h4>
+              </div>
+              <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100">
+                <p class="text-[10px] font-bold text-rose-400 uppercase mb-1">Drop Out</p>
+                <h4 class="text-xl font-black text-rose-700">{{ monthlyDeepDiveKpis.clientsDropOut }}</h4>
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
+                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Churn Rate %</p>
+                <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.churnRatePercent }}%</h4>
+              </div>
+            </div>
+
             <!-- Monthly Deep Dive Charts -->
             <div class="space-y-6">
-              <!-- MRR Waterfall (Full Width) -->
-              <!--<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">-->
-              <!--  <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly MRR Movement (Waterfall)</h3>-->
-              <!--  <div class="h-[400px]">-->
-              <!--    <MRRWaterfallChart-->
-              <!--      :mrr="monthlyDeepDiveKpis.mrr"-->
-              <!--      :expansion="monthlyDeepDiveKpis.expansion"-->
-              <!--      :churn="monthlyDeepDiveKpis.churnAmount"-->
-              <!--      :contraction="monthlyDeepDiveKpis.contraction"-->
-              <!--    />-->
-              <!--  </div>-->
-              <!--</section>-->
-              
               <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- ✨ Monthly MRR Breakdown (Expansion, Churn, Contraction Cards) -->
+                <!-- Monthly MRR Breakdown -->
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly MRR Breakdown</h3>
                   <div class="grid grid-cols-1 gap-4 text-center">
@@ -308,7 +337,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                       <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
                       <p class="text-lg font-black text-rose-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
                     </div>
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 col-span-2">
                       <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Contraction</p>
                       <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
                     </div>
@@ -356,3 +385,22 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
     </div>
   </div>
 </template>
+
+<style lang="css" scoped>
+@import "tailwindcss";
+
+@theme {
+  /*
+  xs	480px (30rem)	สมาร์ทโฟนหน้าจอเล็ก
+  sm	640px (40rem)	สมาร์ทโฟนขนาดใหญ่ / แท็บเล็ตแนวตั้ง
+  md	768px (48rem)	แท็บเล็ต / หน้าจอคอมขนาดเล็ก
+  lg	1024px (64rem)	แล็ปท็อป / หน้าจอคอมพิวเตอร์ทั่วไป
+  xl	1280px (80rem)	หน้าจอเดสก์ท็อปขนาดใหญ่
+  2xl	1536px (96rem)	หน้าจอความละเอียดสูง (Ultra-wide)
+  3xl	1920px (120rem)	หน้าจอใหญ่พิเศษ
+  */
+  
+  --breakpoint-xs: 30rem;    /* 480px */
+  --breakpoint-3xl: 120rem;  /* 1920px */
+}
+</style>

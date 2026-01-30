@@ -6,11 +6,12 @@ import {
   Title,
   Tooltip,
   Legend,
+  BarElement,
   LineElement,
   PointElement,
   CategoryScale,
   LinearScale,
-  ChartOptions,
+  type ChartOptions,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { SaaSMetricItem } from '../../types/report';
@@ -19,6 +20,7 @@ ChartJS.register(
   Title,
   Tooltip,
   Legend,
+  BarElement,
   LineElement,
   PointElement,
   CategoryScale,

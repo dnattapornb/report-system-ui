@@ -11,7 +11,7 @@ import {
   PointElement,
   CategoryScale,
   LinearScale,
-  ChartOptions,
+  type ChartOptions, // ✨ เพิ่ม type
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { SaaSMetricItem } from '../../types/report';
