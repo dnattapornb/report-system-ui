@@ -14,9 +14,8 @@ import TargetAchievementChart from './charts/TargetAchievementChart.vue';
 import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
-import MRRWaterfallChart from './charts/MRRWaterfallChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
-// import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
+import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue'; // ✨ Import OnlineUsersBadge
 
 const store = useSaasMetricsStore();
@@ -61,7 +60,7 @@ const monthlySelectedMonthForPicker = computed({
 // --- Data for Charts and KPIs ---
 const annualChartData = computed(() => store.annualChartData);
 const annualComparison = computed(() => store.annualComparison);
-// const hotelWaterfallData = computed(() => store.hotelWaterfallData);
+const hotelWaterfallData = computed(() => store.hotelWaterfallData);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
 
@@ -78,7 +77,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
         <!-- ✨ Add OnlineUsersBadge here -->
         <OnlineUsersBadge />
       </div>
-
+      
       <!-- Loading State -->
       <div v-if="!store.saasMetricsData" class="text-center p-12 text-slate-500 text-lg">
         Loading SaaS Metrics Data...
@@ -167,17 +166,17 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <TargetAchievementChart :chart-data="annualChartData" />
               </div>
             </section>
-
+            
             <!-- Hotel Waterfall Chart -->
-            <!--<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">-->
-            <!--  <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Net Growth (Waterfall)</h3>-->
-            <!--  <div v-if="hotelWaterfallData" class="h-[300px]">-->
-            <!--    <HotelWaterfallChart :chart-data="hotelWaterfallData" />-->
-            <!--  </div>-->
-            <!--  <div v-else class="h-[300px] flex items-center justify-center text-slate-400 italic">-->
-            <!--    Not enough data for waterfall.-->
-            <!--  </div>-->
-            <!--</section>-->
+            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Net Growth (Waterfall)</h3>
+              <div v-if="hotelWaterfallData" class="h-[300px]">
+                <HotelWaterfallChart :chart-data="hotelWaterfallData" />
+              </div>
+              <div v-else class="h-[300px] flex items-center justify-center text-slate-400 italic">
+                Not enough data for waterfall.
+              </div>
+            </section>
             
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Efficiency (Avg. Sales / Rep)</h3>
@@ -299,7 +298,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <p class="text-[10px] text-slate-400 mt-1">Clients Lost</p>
               </div>
             </div>
-
+            
             <!-- ✨ KPI Grid Row 3: Hotel Portfolio Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -318,7 +317,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <p class="text-[10px] text-slate-400 mt-1">Waiting for setup</p>
               </div>
             </div>
-
+            
             <!-- ✨ KPI Grid Row 4: New Acquisition & Churn Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
@@ -342,7 +341,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.churnRatePercent }}%</h4>
               </div>
             </div>
-
+            
             <!-- Monthly Deep Dive Charts -->
             <div class="space-y-6">
               <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -364,7 +363,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                     </div>
                   </div>
                 </section>
-
+                
                 <!-- Monthly Client Acquisition -->
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Client Acquisition</h3>
@@ -383,7 +382,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                     </div>
                   </div>
                 </section>
-
+                
                 <!-- Hotel Status Pie Chart -->
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
@@ -420,7 +419,6 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
   2xl	1536px (96rem)	หน้าจอความละเอียดสูง (Ultra-wide)
   3xl	1920px (120rem)	หน้าจอใหญ่พิเศษ
   */
-  
   --breakpoint-xs: 30rem;    /* 480px */
   --breakpoint-3xl: 120rem;  /* 1920px */
 }
