@@ -44,7 +44,9 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       console.error('Failed to load initial SaaS metrics data', err);
     }
 
-    socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
+    // Update Event Name to match Backend: 'update:saas:metrics'
+    socket.on('update:saas:metrics', (newData: SaaSMetricsData) => {
+      console.log('[Synced] Real-time SaaS Metrics updated via WebSocket');
       saasMetricsData.value = newData;
     });
   }
@@ -73,7 +75,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       .sort((a, b) => new Date(`${a.year}-${a.month}-01`).getTime() - new Date(`${b.year}-${b.month}-01`).getTime());
   });
 
-  // ✨ New: Annual Comparison (YoY)
+  // New: Annual Comparison (YoY)
   const annualComparison = computed(() => {
     if (!saasMetricsData.value || !annualSelectedYear.value) return null;
 
