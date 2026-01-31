@@ -14,9 +14,10 @@ import TargetAchievementChart from './charts/TargetAchievementChart.vue';
 import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
+import MRRWaterfallChart from './charts/MRRWaterfallChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
 import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
-import OnlineUsersBadge from './OnlineUsersBadge.vue'; // ✨ Import OnlineUsersBadge
+import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
 const store = useSaasMetricsStore();
 
@@ -28,34 +29,34 @@ const yearRange = computed((): [number, number] => {
   return [firstYear, lastYear];
 });
 
-// --- Computed properties for Annual Performance Filters ---
-const annualSelectedYearForPicker = computed({
-  get: () => store.annualSelectedYear ? store.annualSelectedYear : null,
-  set: (val: { year: number; month: number } | number | null) => {
-    let yearString: string | null = null;
-    if (typeof val === 'number') {
-      yearString = val.toString();
-    } else if (val && typeof val === 'object' && 'year' in val) {
-      yearString = val.year.toString();
+// ✨ Unified Filter Computed Property
+const selectedYearMonthForPicker = computed({
+  get: () => {
+    if (store.selectedYearMonth) {
+      return {
+        year: parseInt(store.selectedYearMonth.year),
+        month: parseInt(store.selectedYearMonth.month) - 1,
+      };
     }
-    store.annualSelectedYear = yearString;
+    return null;
   },
-});
-
-// --- Computed properties for Monthly Deep Dive Filters ---
-const monthlySelectedMonthForPicker = computed({
-  get: () => store.monthlySelectedMonth ? { year: parseInt(store.monthlySelectedMonth.year), month: parseInt(store.monthlySelectedMonth.month) - 1 } : null,
-  set: (val) => {
-    if (val && typeof val === 'object' && 'year' in val && 'month' in val && val.month !== undefined) {
-      store.monthlySelectedMonth = {
+  set: (val: { year: number; month: number } | null) => {
+    if (val && typeof val === 'object' && val.year && val.month !== undefined) {
+      store.selectedYearMonth = {
         year: val.year.toString(),
         month: (val.month + 1).toString().padStart(2, '0'),
       };
     } else {
-      store.monthlySelectedMonth = null;
+      store.selectedYearMonth = null;
     }
   },
 });
+
+// Function to format month picker display
+const formatMonthPicker = (date: { month: number; year: number }) => {
+  const monthName = new Date(date.year, date.month).toLocaleString('default', { month: 'long' });
+  return `${monthName} ${date.year}`;
+};
 
 // --- Data for Charts and KPIs ---
 const annualChartData = computed(() => store.annualChartData);
@@ -63,21 +64,37 @@ const annualComparison = computed(() => store.annualComparison);
 const hotelWaterfallData = computed(() => store.hotelWaterfallData);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
-
-const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans min-w-screen">
-    <div class="space-y-12">
+    <div class="space-y-8">
       
-      <!-- Header with Title and Online Users Badge -->
-      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 mb-12 flex justify-between items-center">
-        <h2 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Sale Performance Dashboard</h2>
-        <!-- ✨ Add OnlineUsersBadge here -->
-        <OnlineUsersBadge />
+      <!-- Global Header & Filter -->
+      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div class="flex items-center gap-4">
+          <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Sale Performance Dashboard</h1>
+          <OnlineUsersBadge />
+        </div>
+        
+        <div class="flex items-center gap-4">
+          <span class="text-sm font-bold text-slate-500 uppercase tracking-wider">Select Period:</span>
+          <div class="w-48">
+            <VueDatePicker
+              v-if="store.allAvailableYears.length > 0"
+              v-model="selectedYearMonthForPicker"
+              month-picker
+              auto-apply
+              placeholder="Select Month"
+              :clearable="false"
+              :format="formatMonthPicker"
+              :year-range="yearRange"
+            />
+            <div v-else class="h-9 w-full bg-slate-200 rounded-lg animate-pulse"></div>
+          </div>
+        </div>
       </div>
-      
+
       <!-- Loading State -->
       <div v-if="!store.saasMetricsData" class="text-center p-12 text-slate-500 text-lg">
         Loading SaaS Metrics Data...
@@ -85,29 +102,15 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
       <div v-else-if="store.allAvailableYears.length === 0" class="text-center p-12 text-slate-500 text-lg">
         No data available. Please sync from source.
       </div>
-      <div v-else>
+      
+      <div v-else class="space-y-12">
         <!-- Annual Performance Section -->
-        <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 mb-12">
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-            <div>
-              <h2 class="text-2xl font-bold text-slate-800">Annual Performance Analysis</h2>
-              <p class="text-sm text-slate-500 mt-1">Yearly trends and YoY growth comparison</p>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-40">
-                <VueDatePicker
-                  v-if="store.allAvailableYears.length > 0"
-                  :key="yearPickerKey"
-                  v-model="annualSelectedYearForPicker"
-                  year-picker
-                  auto-apply
-                  placeholder="Select Year"
-                  :clearable="true"
-                  :year-range="yearRange"
-                />
-                <div v-else class="h-9 w-full bg-slate-200 rounded-lg animate-pulse"></div>
-              </div>
-            </div>
+        <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+          <div class="mb-8 border-b border-slate-100 pb-4">
+            <h2 class="text-2xl font-bold text-slate-800">Annual Performance Analysis</h2>
+            <p class="text-sm text-slate-500 mt-1">
+              Overview for <span class="font-bold text-blue-600">{{ store.selectedYearMonth?.year }}</span>
+            </p>
           </div>
           
           <!-- Annual YoY Comparison Cards -->
@@ -138,7 +141,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <TotalRevenueChart :chart-data="annualChartData" />
               </div>
             </section>
-            
+
             <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
               <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
               <div class="h-[300px]">
@@ -203,25 +206,11 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
         
         <!-- Monthly Deep Dive Section -->
         <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-          <div class="flex flex-col md:flex-row justify-between items-center gap-4 mb-8">
-            <div>
-              <h2 class="text-2xl font-bold text-slate-800">Monthly Deep Dive</h2>
-              <p class="text-sm text-slate-500 mt-1">Detailed analysis for a specific month</p>
-            </div>
-            <div class="flex items-center gap-4">
-              <div class="w-48">
-                <VueDatePicker
-                  v-if="store.allAvailableYears.length > 0"
-                  v-model="monthlySelectedMonthForPicker"
-                  month-picker
-                  auto-apply
-                  placeholder="Select Month"
-                  :clearable="true"
-                  :year-range="yearRange"
-                />
-                <div v-else class="h-9 w-full bg-slate-200 rounded-lg animate-pulse"></div>
-              </div>
-            </div>
+          <div class="mb-8 border-b border-slate-100 pb-4">
+            <h2 class="text-2xl font-bold text-slate-800">Monthly Deep Dive</h2>
+            <p class="text-sm text-slate-500 mt-1">
+              Detailed analysis for <span class="font-bold text-blue-600">{{ store.selectedYearMonth?.month }}/{{ store.selectedYearMonth?.year }}</span>
+            </p>
           </div>
           
           <div v-if="monthlyDeepDiveData.length === 0" class="text-center p-8 text-slate-500">
@@ -298,7 +287,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <p class="text-[10px] text-slate-400 mt-1">Clients Lost</p>
               </div>
             </div>
-            
+
             <!-- ✨ KPI Grid Row 3: Hotel Portfolio Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
               <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
@@ -317,7 +306,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <p class="text-[10px] text-slate-400 mt-1">Waiting for setup</p>
               </div>
             </div>
-            
+
             <!-- ✨ KPI Grid Row 4: New Acquisition & Churn Details (New) -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
               <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
@@ -341,7 +330,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                 <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.churnRatePercent }}%</h4>
               </div>
             </div>
-            
+
             <!-- Monthly Deep Dive Charts -->
             <div class="space-y-6">
               <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -363,7 +352,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                     </div>
                   </div>
                 </section>
-                
+
                 <!-- Monthly Client Acquisition -->
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Client Acquisition</h3>
@@ -382,7 +371,7 @@ const yearPickerKey = computed(() => store.allAvailableYears.join('-'));
                     </div>
                   </div>
                 </section>
-                
+
                 <!-- Hotel Status Pie Chart -->
                 <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                   <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
