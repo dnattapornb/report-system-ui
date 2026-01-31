@@ -15,7 +15,7 @@ import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
-import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
+// import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
 const store = useSaasMetricsStore();
@@ -28,7 +28,6 @@ const yearRange = computed((): [number, number] => {
   return [firstYear, lastYear];
 });
 
-// ✨ Unified Filter Computed Property
 const selectedYearMonthForPicker = computed({
   get: () => {
     if (store.selectedYearMonth) {
@@ -60,19 +59,19 @@ const formatMonthPicker = (date: { month: number; year: number }) => {
 // --- Data for Charts and KPIs ---
 const annualChartData = computed(() => store.annualChartData);
 const annualComparison = computed(() => store.annualComparison);
-const hotelWaterfallData = computed(() => store.hotelWaterfallData);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
+// const hotelWaterfallData = computed(() => store.hotelWaterfallData);
 </script>
 
 <template>
   <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans min-w-screen">
-    <div class="space-y-8">
+    <div class="space-y-4">
       
       <!-- Global Header & Filter -->
       <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-4">
-          <h1 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Sale Performance Dashboard</h1>
+          <h4 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Sale Performance Dashboard</h4>
           <OnlineUsersBadge />
         </div>
         
@@ -93,7 +92,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
           </div>
         </div>
       </div>
-
+      
       <!-- Loading State -->
       <div v-if="!store.saasMetricsData" class="text-center p-12 text-slate-500 text-lg">
         Loading SaaS Metrics Data...
@@ -103,170 +102,48 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
       </div>
       
       <div v-else class="space-y-12">
-        <!-- Annual Performance Section -->
+        <!-- Sale Performance Section -->
         <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-          <div class="mb-8 border-b border-slate-100 pb-4">
-            <h2 class="text-2xl font-bold text-slate-800">Annual Performance Analysis</h2>
-            <p class="text-sm text-slate-500 mt-1">
-              Overview for <span class="font-bold text-blue-600">{{ store.selectedYearMonth?.year }}</span>
-            </p>
-          </div>
-          
-          <!-- Annual YoY Comparison Cards -->
-          <div v-if="annualComparison" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-            <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-slate-50 p-5 rounded-2xl border border-slate-100 relative overflow-hidden">
-              <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ key }} (Annual)</p>
-              <h3 class="text-2xl font-black text-slate-800">
-                {{ key === 'newClients' ? data.current : formatCurrency(data.current) }}
-              </h3>
-              
-              <div v-if="data.growth !== null" class="mt-2 flex items-center gap-2">
-                <span :class="data.growth >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                  {{ data.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(data.growth).toFixed(1) }}%
-                </span>
-                <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }}</span>
-              </div>
-              <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+          <!-- Monthly Deep Dive Section -->
+          <div v-if="monthlyDeepDiveData && monthlyDeepDiveKpis">
+            <!-- Monthly Deep Dive Header Section -->
+            <div class="mb-8 border-b border-slate-100 pb-4">
+              <h2 class="text-1xl font-bold text-slate-800 text-left">Monthly Deep Dive</h2>
+              <p class="text-sm text-slate-500 mt-1 text-left">
+                Detailed analysis for <span class="font-bold text-blue-600">{{ formatMonthPicker({ month: parseInt(store.selectedYearMonth!.month) - 1, year: parseInt(store.selectedYearMonth!.year) }) }}</span>
+              </p>
             </div>
-          </div>
-          
-          <div v-if="annualChartData.length === 0" class="text-center p-8 text-slate-500">
-            No annual data available for the selected year.
-          </div>
-          <div v-else class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Total Revenue Trend</h3>
-              <div class="h-[300px]">
-                <TotalRevenueChart :chart-data="annualChartData" />
-              </div>
-            </section>
-
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
-              <div class="h-[300px]">
-                <BusinessHealthTrendChart :chart-data="annualChartData" />
-              </div>
-            </section>
             
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Profitability: Actual vs. Target</h3>
-              <div class="h-[300px]">
-                <ProfitabilityChart :chart-data="annualChartData" />
-              </div>
-            </section>
-            
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">MRR Movement Analysis</h3>
-              <div class="h-[400px]">
-                <MRRMovementChart :chart-data="annualChartData" />
-              </div>
-            </section>
-            
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Target Achievement</h3>
-              <div class="h-[300px]">
-                <TargetAchievementChart :chart-data="annualChartData" />
-              </div>
-            </section>
-            
-            <!-- Hotel Waterfall Chart -->
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Net Growth (Waterfall)</h3>
-              <div v-if="hotelWaterfallData" class="h-[300px]">
-                <HotelWaterfallChart :chart-data="hotelWaterfallData" />
-              </div>
-              <div v-else class="h-[300px] flex items-center justify-center text-slate-400 italic">
-                Not enough data for waterfall.
-              </div>
-            </section>
-            
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Efficiency (Avg. Sales / Rep)</h3>
-              <div class="h-[300px]">
-                <SalesEfficiencyChart :chart-data="annualChartData" />
-              </div>
-            </section>
-            
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">Pipeline Health (Trial & Pending)</h3>
-              <div class="h-[300px]">
-                <PipelineHealthChart :chart-data="annualChartData" />
-              </div>
-            </section>
-            
-            <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-              <h3 class="text-lg font-bold text-slate-700 mb-4">New Client Acquisition Mix</h3>
-              <div class="h-[300px]">
-                <AcquisitionMixChart :chart-data="annualChartData" />
-              </div>
-            </section>
-          </div>
-        </section>
-        
-        <!-- Monthly Deep Dive Section -->
-        <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
-          <div class="mb-8 border-b border-slate-100 pb-4">
-            <h2 class="text-2xl font-bold text-slate-800">Monthly Deep Dive</h2>
-            <p class="text-sm text-slate-500 mt-1">
-              Detailed analysis for <span class="font-bold text-blue-600">{{ store.selectedYearMonth?.month }}/{{ store.selectedYearMonth?.year }}</span>
-            </p>
-          </div>
-          
-          <div v-if="monthlyDeepDiveData.length === 0" class="text-center p-8 text-slate-500">
-            No monthly data available for the selected period.
-          </div>
-          <div v-else-if="monthlyDeepDiveKpis" class="space-y-8">
-            <h3 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-              <span class="p-2 bg-blue-50 text-blue-600 rounded-lg text-sm">📊</span>
-              KPIs for {{ monthlyDeepDiveKpis.label }}
-            </h3>
-            
-            <!-- KPI Grid Row 1: Financials -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <!-- Monthly Deep Dive Cards -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-10">
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">MRR</p>
-                <h4 class="text-2xl font-black text-blue-600 mt-2">
-                  {{ formatCurrency(monthlyDeepDiveKpis.mrr) }}
-                </h4>
-              </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">NRR</p>
-                <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.nrrPercent >= 100 ? 'text-emerald-600' : 'text-rose-500'">
-                  {{ formatPercentage(monthlyDeepDiveKpis.nrrPercent) }}
-                </h4>
-              </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Actual Profit</p>
-                <h4 class="text-2xl font-black text-sky-600 mt-2">
-                  {{ formatCurrency(monthlyDeepDiveKpis.actualProfit) }}
-                </h4>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
+                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.actualHotels }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">New Clients</p>
                 <h4 class="text-2xl font-black text-violet-600 mt-2">
                   +{{ monthlyDeepDiveKpis.totalNewClients }}
                 </h4>
+                <p class="text-[10px] text-slate-400 mt-1">
+                  {{ monthlyDeepDiveKpis.newClientsOrganic }} Organic & {{ monthlyDeepDiveKpis.newClientsBusinessPartner }} Partner
+                </p>
               </div>
-            </div>
-            
-            <!-- KPI Grid Row 2: Operational -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pipeline</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Drop Out</p>
+                <h4 class="text-2xl font-black text-red-600 mt-2">
+                  -{{ monthlyDeepDiveKpis.clientsDropOut }}
+                </h4>
+                <p class="text-[10px] text-slate-400 mt-1">Churn Rate {{ monthlyDeepDiveKpis.churnRatePercent }}%</p>
+              </div>
+              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pipeline Hotels</p>
                 <h4 class="text-2xl font-black text-orange-500 mt-2">
                   {{ monthlyDeepDiveKpis.clientsFreeTrial + monthlyDeepDiveKpis.clientsPendingSetup }}
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">
                   {{ monthlyDeepDiveKpis.clientsFreeTrial }} Trial & {{ monthlyDeepDiveKpis.clientsPendingSetup }} Pending
-                </p>
-              </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sales Force</p>
-                <h4 class="text-2xl font-black text-indigo-600 mt-2">
-                  {{ monthlyDeepDiveKpis.totalSalesRep }} Reps
-                </h4>
-                <p class="text-[10px] text-slate-400 mt-1">
-                  Avg. {{ (monthlyDeepDiveKpis.totalNewClients / (monthlyDeepDiveKpis.totalSalesRep || 1)).toFixed(1) }} Sales/Rep
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -279,115 +156,187 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Churn Volume</p>
-                <h4 class="text-2xl font-black text-red-600 mt-2">
-                  -{{ monthlyDeepDiveKpis.clientsDropOut }}
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sales Force</p>
+                <h4 class="text-2xl font-black text-indigo-600 mt-2">
+                  {{ monthlyDeepDiveKpis.totalSalesRep }} Reps
                 </h4>
-                <p class="text-[10px] text-slate-400 mt-1">Clients Lost</p>
+                <p class="text-[10px] text-slate-400 mt-1">
+                  Avg. {{ (monthlyDeepDiveKpis.totalNewClients / (monthlyDeepDiveKpis.totalSalesRep || 1)).toFixed(1) }} Sales/Rep
+                </p>
               </div>
             </div>
-
-            <!-- ✨ KPI Grid Row 3: Hotel Portfolio Details (New) -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-              <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
-                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.actualHotels }}</h4>
-                <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
-              </div>
-              <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Free Trial Hotels</p>
-                <h4 class="text-2xl font-black text-amber-500 mt-2">{{ monthlyDeepDiveKpis.clientsFreeTrial }}</h4>
-                <p class="text-[10px] text-slate-400 mt-1">Currently trialing</p>
-              </div>
-              <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pending Hotels</p>
-                <h4 class="text-2xl font-black text-orange-500 mt-2">{{ monthlyDeepDiveKpis.clientsPendingSetup }}</h4>
-                <p class="text-[10px] text-slate-400 mt-1">Waiting for setup</p>
-              </div>
-            </div>
-
-            <!-- ✨ KPI Grid Row 4: New Acquisition & Churn Details (New) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-              <div class="bg-blue-50 p-4 rounded-2xl border border-blue-100">
-                <p class="text-[10px] font-bold text-blue-400 uppercase mb-1">Total New</p>
-                <h4 class="text-xl font-black text-blue-700">{{ monthlyDeepDiveKpis.totalNewClients }}</h4>
-              </div>
-              <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">From Organic</p>
-                <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.newClientsOrganic }}</h4>
-              </div>
-              <div class="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">From Partner</p>
-                <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</h4>
-              </div>
-              <div class="bg-rose-50 p-4 rounded-2xl border border-rose-100">
-                <p class="text-[10px] font-bold text-rose-400 uppercase mb-1">Drop Out</p>
-                <h4 class="text-xl font-black text-rose-700">{{ monthlyDeepDiveKpis.clientsDropOut }}</h4>
-              </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100">
-                <p class="text-[10px] font-bold text-slate-400 uppercase mb-1">Churn Rate %</p>
-                <h4 class="text-xl font-black text-slate-700">{{ monthlyDeepDiveKpis.churnRatePercent }}%</h4>
-              </div>
-            </div>
-
+            
             <!-- Monthly Deep Dive Charts -->
-            <div class="space-y-6">
-              <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Monthly MRR Breakdown -->
-                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly MRR Breakdown</h3>
-                  <div class="grid grid-cols-1 gap-4 text-center">
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Expansion</p>
-                      <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.expansion) }}</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
-                      <p class="text-lg font-black text-rose-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 col-span-2">
-                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Contraction</p>
-                      <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
-                    </div>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
+              <!-- Monthly MRR Breakdown -->
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Revenue Breakdown</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">MRR</p>
+                    <p class="text-lg font-black text-blue-600">{{ formatCurrency(monthlyDeepDiveKpis.mrr) }}</p>
                   </div>
-                </section>
-
-                <!-- Monthly Client Acquisition -->
-                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Client Acquisition</h3>
-                  <div class="grid grid-cols-1 gap-4 text-center">
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Organic</p>
-                      <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.newClientsOrganic }}</p>
-                    </div>
-                    <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                      <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner</p>
-                      <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</p>
-                    </div>
-                    <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                      <p class="text-xs text-blue-500 font-bold uppercase tracking-tighter">Total New</p>
-                      <p class="text-lg font-black text-blue-700">{{ monthlyDeepDiveKpis.totalNewClients }}</p>
-                    </div>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Expansion</p>
+                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.expansion) }}</p>
                   </div>
-                </section>
-
-                <!-- Hotel Status Pie Chart -->
-                <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
-                  <div class="h-[300px]">
-                    <HotelStatusPieChart
-                      :actual="monthlyDeepDiveKpis.actualHotels"
-                      :pending="monthlyDeepDiveKpis.clientsPendingSetup"
-                      :drop-out="monthlyDeepDiveKpis.clientsDropOut"
-                    />
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Contraction</p>
+                    <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
                   </div>
-                </section>
-              </div>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
+                    <p class="text-lg font-black text-rose-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
+                  </div>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Actual Profit</p>
+                    <p class="text-lg font-black text-sky-600">{{ formatCurrency(monthlyDeepDiveKpis.actualProfit) }}</p>
+                  </div>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Revenue</p>
+                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.totalRevenue) }}</p>
+                  </div>
+                </div>
+              </section>
+              
+              <!-- Monthly Client Acquisition -->
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Client Acquisition</h3>
+                <div class="grid grid-cols-1 gap-4 text-center">
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Organic</p>
+                    <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.newClientsOrganic }}</p>
+                  </div>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner</p>
+                    <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</p>
+                  </div>
+                  <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
+                    <p class="text-xs text-blue-500 font-bold uppercase tracking-tighter">Total New</p>
+                    <p class="text-lg font-black text-blue-700">{{ monthlyDeepDiveKpis.totalNewClients }}</p>
+                  </div>
+                </div>
+              </section>
+              
+              <!-- Hotel Status Pie Chart -->
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
+                <div class="h-[300px]">
+                  <HotelStatusPieChart
+                    :actual="monthlyDeepDiveKpis.actualHotels"
+                    :pending="monthlyDeepDiveKpis.clientsPendingSetup"
+                    :drop-out="monthlyDeepDiveKpis.clientsDropOut"
+                  />
+                </div>
+              </section>
             </div>
           </div>
-          <div v-else class="text-center p-8 text-slate-500">
-            Select a specific month to view deep dive KPIs.
+          
+          <!-- Annual Performance Analysis -->
+          <div v-if="annualChartData.length === 0" class="text-center p-8 text-slate-500">
+            No annual data available for the selected year.
           </div>
+          <div v-else>
+            <!-- Annual Header Section -->
+            <div class="mb-8 border-b border-slate-100 pb-4">
+              <h2 class="text-1xl font-bold text-slate-800 text-left">Annual Performance Analysis</h2>
+              <p v-if="store.selectedYearMonth" class="text-sm text-slate-500 text-left">
+                Overview for <span class="font-bold text-blue-600">{{ store.selectedYearMonth?.year }}</span>
+              </p>
+              <p v-else-if="yearRange.length > 0" class="text-sm text-slate-500 text-left">
+                Overview for <span class="font-bold text-blue-600">{{ yearRange[0] }} - {{ yearRange[yearRange.length - 1] }}</span>
+              </p>
+            </div>
+            
+            <!-- Annual YoY Comparison Cards -->
+            <div v-if="annualComparison">
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+                <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ key }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-slate-800">
+                    {{ key === 'newClients' ? data.current : formatCurrency(data.current) }}
+                  </h3>
+                  <div v-if="data.growth !== null" class="mt-2 flex items-center gap-2">
+                  <span :class="data.growth >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                    {{ data.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(data.growth).toFixed(1) }}%
+                  </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }}</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Annual Performance Analysis Charts -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Total Revenue Trend</h3>
+                <div class="h-[300px]">
+                  <TotalRevenueChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
+                <div class="h-[300px]">
+                  <BusinessHealthTrendChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Profitability: Actual vs. Target</h3>
+                <div class="h-[300px]">
+                  <ProfitabilityChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">MRR Movement Analysis</h3>
+                <div class="h-[400px]">
+                  <MRRMovementChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Target Achievement</h3>
+                <div class="h-[300px]">
+                  <TargetAchievementChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Efficiency (Avg. Sales / Rep)</h3>
+                <div class="h-[300px]">
+                  <SalesEfficiencyChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Pipeline Health (Trial & Pending)</h3>
+                <div class="h-[300px]">
+                  <PipelineHealthChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">New Client Acquisition Mix</h3>
+                <div class="h-[300px]">
+                  <AcquisitionMixChart :chart-data="annualChartData" />
+                </div>
+              </section>
+            </div>
+          </div>
+          
+          <!-- Hotel Waterfall Chart -->
+          <!--<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+            <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Net Growth (Waterfall)</h3>
+            <div v-if="hotelWaterfallData" class="h-[300px]">
+              <HotelWaterfallChart :chart-data="hotelWaterfallData" />
+            </div>
+            <div v-else class="h-[300px] flex items-center justify-center text-slate-400 italic">
+              Not enough data for waterfall.
+            </div>
+          </section>-->
         </section>
       </div>
     </div>

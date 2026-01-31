@@ -15,16 +15,14 @@ export interface OnlineUser {
 
 export const useSaasMetricsStore = defineStore('saasMetrics', () => {
   const saasMetricsData = ref<SaaSMetricsData | null>(null);
-  
+
   const onlineUsers = ref<OnlineUser[]>([]);
   const onlineUsersCount = ref<number>(0);
 
-  // ✨ Unified Filter State
   const selectedYearMonth = ref<{ year: string; month: string } | null>(null);
 
   // --- Actions ---
   async function fetchAndConnect() {
-    // ✨ Update Event Name to match Backend: 'update:saas-metrics'
     socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
       console.log('[Synced] Real-time SaaS Metrics updated via WebSocket');
       saasMetricsData.value = newData;
@@ -47,7 +45,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
         const currentYearStr = now.getFullYear().toString();
         const currentMonthStr = (now.getMonth() + 1).toString().padStart(2, '0');
 
-        // ✨ Initialize selectedYearMonth
+        // Initialize selectedYearMonth
         if (saasMetricsData.value[currentYearStr]?.[currentMonthStr]) {
           selectedYearMonth.value = { year: currentYearStr, month: currentMonthStr };
         } else {
@@ -73,13 +71,17 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
   });
 
   const annualChartData = computed(() => {
-    if (!saasMetricsData.value || !selectedYearMonth.value) return [];
-    
-    // Use the year from selectedYearMonth
-    const year = selectedYearMonth.value.year;
-    const dataToProcess = { [year]: saasMetricsData.value[year] };
+    if (!saasMetricsData.value) return [];
 
-    if (!dataToProcess[year]) return [];
+    let dataToProcess: SaaSMetricsData = saasMetricsData.value;
+    // Use the year from selectedYearMonth
+    let year = null;
+    if (selectedYearMonth.value) {
+      year = selectedYearMonth.value.year;
+      if (year && dataToProcess[year]) {
+        dataToProcess = { [year]: dataToProcess[year] };
+      }
+    }
 
     return Object.entries(dataToProcess)
       .flatMap(([y, months]) =>
@@ -98,7 +100,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
     const currentYear = selectedYearMonth.value.year;
     const prevYear = (parseInt(currentYear) - 1).toString();
-    
+
     let startingBalance = 0;
     if (saasMetricsData.value[prevYear] && saasMetricsData.value[prevYear]['12']) {
       startingBalance = saasMetricsData.value[prevYear]['12'].actualHotels;
@@ -108,7 +110,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     if (!months) return null;
 
     const sortedMonths = Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
-    
+
     const labels = [`Start (${prevYear})`];
     const newData = [0];
     const dropData = [0];
@@ -120,26 +122,26 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       const data = months[month];
       const newClients = data.newClientsOrganic + data.newClientsBusinessPartner;
       const dropOut = data.clientsDropOut;
-      
+
       labels.push(`${new Date(Date.parse(month + ' 1, 2012')).toLocaleString('default', { month: 'short' })}`);
       newData.push(newClients);
       dropData.push(-dropOut);
-      
+
       currentBalance += newClients - dropOut;
       balanceData.push(currentBalance);
     }
-    
+
     labels.push(`End (${currentYear})`);
     newData.push(0);
     dropData.push(0);
     balanceData.push(currentBalance);
 
-    return { 
-      labels, 
-      newData, 
-      dropData, 
+    return {
+      labels,
+      newData,
+      dropData,
       balanceData,
-      startingBalance 
+      startingBalance,
     };
   });
 
@@ -213,7 +215,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
   const monthlyDeepDiveData = computed(() => {
     if (!saasMetricsData.value || !selectedYearMonth.value) return [];
-    
+
     const { year, month } = selectedYearMonth.value;
     const dataToProcess = saasMetricsData.value;
 
@@ -223,14 +225,14 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
           [month]: dataToProcess[year][month],
         },
       })
-      .flatMap(([y, months]) =>
-        Object.entries(months).map(([m, data]) => ({
-          ...data,
-          year: y,
-          month: m,
-          label: `${new Date(Date.parse(m + ' 1, 2012')).toLocaleString('default', { month: 'short' })}-${y.slice(2)}`,
-        })),
-      );
+        .flatMap(([y, months]) =>
+          Object.entries(months).map(([m, data]) => ({
+            ...data,
+            year: y,
+            month: m,
+            label: `${new Date(Date.parse(m + ' 1, 2012')).toLocaleString('default', { month: 'short' })}-${y.slice(2)}`,
+          })),
+        );
     }
     return [];
   });
