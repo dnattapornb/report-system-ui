@@ -14,7 +14,6 @@ import TargetAchievementChart from './charts/TargetAchievementChart.vue';
 import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
-import MRRWaterfallChart from './charts/MRRWaterfallChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
 import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
