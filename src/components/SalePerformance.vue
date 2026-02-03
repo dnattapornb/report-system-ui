@@ -194,7 +194,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Revenue</p>
-                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.actualTotalRevenue) }}</p>
+                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.totalActualRevenue) }}</p>
                   </div>
                 </div>
               </section>
