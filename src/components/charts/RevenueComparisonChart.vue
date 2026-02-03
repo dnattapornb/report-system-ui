@@ -28,8 +28,8 @@ const formatCurrency = (val: number, compact = false) => {
 
 const profitChartData = computed(() => {
   const labels = props.chartData.map(d => d.label);
-  const totalActualRevenue = props.chartData.map(d => d.totalActualRevenue);
-  const totalTargetRevenue = props.chartData.map(d => d.totalTargetRevenue);
+  const revenueActual = props.chartData.map(d => d.revenueActual);
+  const revenueTarget = props.chartData.map(d => d.revenueTarget);
   
   return {
     labels,
@@ -37,7 +37,7 @@ const profitChartData = computed(() => {
       {
         type: 'bar' as const,
         label: 'Actual Revenue',
-        data: totalActualRevenue,
+        data: revenueActual,
         backgroundColor: 'rgba(14, 165, 233, 0.7)', // Sky Blue
         borderRadius: 6,
         order: 2,
@@ -45,7 +45,7 @@ const profitChartData = computed(() => {
       {
         type: 'line' as const,
         label: 'Target Revenue',
-        data: totalTargetRevenue,
+        data: revenueTarget,
         borderColor: '#f97316', // Orange
         backgroundColor: '#f97316',
         pointRadius: 4,

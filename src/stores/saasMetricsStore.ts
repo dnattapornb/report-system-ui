@@ -156,7 +156,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       if (!months) return null;
 
       const totals = {
-        totalActualRevenue: 0,
+        revenueActual: 0,
         totalProfit: 0,
         newClients: 0,
         avgMrr: 0,
@@ -164,7 +164,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       };
 
       Object.values(months).forEach((m) => {
-        totals.totalActualRevenue += m.totalActualRevenue;
+        totals.revenueActual += m.revenueActual;
         totals.totalProfit += m.actualProfit;
         totals.newClients += m.newClientsOrganic + m.newClientsBusinessPartner;
         totals.avgMrr += m.mrr;
@@ -190,9 +190,9 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       prevYear,
       metrics: {
         revenue: {
-          current: currentTotals.totalActualRevenue,
-          prev: prevTotals?.totalActualRevenue,
-          growth: calculateGrowth(currentTotals.totalActualRevenue, prevTotals?.totalActualRevenue),
+          current: currentTotals.revenueActual,
+          prev: prevTotals?.revenueActual,
+          growth: calculateGrowth(currentTotals.revenueActual, prevTotals?.revenueActual),
         },
         profit: {
           current: currentTotals.totalProfit,
@@ -251,7 +251,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       churnRatePercent: data.churnRatePercent,
       actualProfit: data.actualProfit,
       targetProfit: data.targetProfit,
-      totalActualRevenue: data.totalActualRevenue,
+      revenueActual: data.revenueActual,
       newClientsOrganic: data.newClientsOrganic,
       newClientsBusinessPartner: data.newClientsBusinessPartner,
       totalNewClients: data.newClientsOrganic + data.newClientsBusinessPartner,
