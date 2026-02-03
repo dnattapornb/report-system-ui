@@ -36,19 +36,19 @@ const chartData = computed(() => {
     datasets: [
       {
         label: 'Free Trial',
-        data: props.chartData.map((d) => d.clientsFreeTrial),
+        data: props.chartData.map((d) => d.clientFreeTrialCount),
         backgroundColor: '#facc15', // Yellow
         stack: 'stack0',
       },
       {
         label: 'Pending Setup',
-        data: props.chartData.map((d) => d.clientsPendingSetup),
+        data: props.chartData.map((d) => d.clientPendingSetupCount),
         backgroundColor: '#fb923c', // Orange
         stack: 'stack0',
       },
       {
         label: 'Drop Out',
-        data: props.chartData.map((d) => -d.clientsDropOut), // Negative for visual distinction
+        data: props.chartData.map((d) => -d.clientChurnCount), // Negative for visual distinction
         backgroundColor: '#ef4444', // Red
         stack: 'stack0',
       },

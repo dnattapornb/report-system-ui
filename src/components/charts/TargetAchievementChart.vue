@@ -34,8 +34,8 @@ const props = defineProps<{
 
 const chartData = computed(() => {
   const labels = props.chartData.map((d) => d.label);
-  const actualData = props.chartData.map((d) => d.actualHotels);
-  const targetData = props.chartData.map((d) => d.targetHotels);
+  const actualData = props.chartData.map((d) => d.hotelActual);
+  const targetData = props.chartData.map((d) => d.hotelTarget);
   
   return {
     labels,

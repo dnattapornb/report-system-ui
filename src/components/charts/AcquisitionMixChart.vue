@@ -19,12 +19,12 @@ const acquisitionChartData = computed(() => {
     datasets: [
       {
         label: 'Organic Sales',
-        data: props.chartData.map(d => d.newClientsOrganic),
+        data: props.chartData.map(d => d.clientNewOrganicCount),
         backgroundColor: '#3b82f6', // Blue
       },
       {
         label: 'Business Partner',
-        data: props.chartData.map(d => d.newClientsBusinessPartner),
+        data: props.chartData.map(d => d.clientNewPartnerCount),
         backgroundColor: '#8b5cf6', // Violet
       },
     ],

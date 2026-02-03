@@ -103,7 +103,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
     let startingBalance = 0;
     if (saasMetricsData.value[prevYear] && saasMetricsData.value[prevYear]['12']) {
-      startingBalance = saasMetricsData.value[prevYear]['12'].actualHotels;
+      startingBalance = saasMetricsData.value[prevYear]['12'].hotelActual;
     }
 
     const months = saasMetricsData.value[currentYear];
@@ -120,8 +120,8 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
     for (const month of sortedMonths) {
       const data = months[month];
-      const newClients = data.newClientsOrganic + data.newClientsBusinessPartner;
-      const dropOut = data.clientsDropOut;
+      const newClients = data.clientNewOrganicCount + data.clientNewPartnerCount;
+      const dropOut = data.clientChurnCount;
 
       labels.push(`${new Date(Date.parse(month + ' 1, 2012')).toLocaleString('default', { month: 'short' })}`);
       newData.push(newClients);
@@ -165,8 +165,8 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
       Object.values(months).forEach((m) => {
         totals.revenueActual += m.revenueActual;
-        totals.totalProfit += m.actualProfit;
-        totals.newClients += m.newClientsOrganic + m.newClientsBusinessPartner;
+        totals.totalProfit += m.cmpayProfitActual;
+        totals.newClients += m.clientNewOrganicCount + m.clientNewPartnerCount;
         totals.avgMrr += m.mrr;
         totals.monthCount++;
       });
@@ -243,24 +243,28 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     return {
       label: data.label,
       mrr: data.mrr,
-      expansion: data.expansion,
+      expansionAmount: data.expansionAmount,
       churnAmount: data.churnAmount,
-      contraction: data.contraction,
+      contractionAmount: data.contractionAmount,
       nrrPercent: data.nrrPercent,
       grrPercent: data.grrPercent,
       churnRatePercent: data.churnRatePercent,
-      actualProfit: data.actualProfit,
-      targetProfit: data.targetProfit,
+      clientNewOrganicCount: data.clientNewOrganicCount,
+      clientNewPartnerCount: data.clientNewPartnerCount,
+      totalNewClients: data.clientNewOrganicCount + data.clientNewPartnerCount,
+      clientChurnCount: data.clientChurnCount,
+      clientFreeTrialCount: data.clientFreeTrialCount,
+      clientPendingSetupCount: data.clientPendingSetupCount,
+      hotelActual: data.hotelActual,
+      hotelTarget: data.hotelTarget,
+      salesRepCount: data.salesRepCount,
+      revenueTarget: data.revenueTarget,
       revenueActual: data.revenueActual,
-      newClientsOrganic: data.newClientsOrganic,
-      newClientsBusinessPartner: data.newClientsBusinessPartner,
-      totalNewClients: data.newClientsOrganic + data.newClientsBusinessPartner,
-      clientsDropOut: data.clientsDropOut,
-      clientsFreeTrial: data.clientsFreeTrial,
-      clientsPendingSetup: data.clientsPendingSetup,
-      actualHotels: data.actualHotels,
-      targetHotels: data.targetHotels,
-      totalSalesRep: data.totalSalesRep,
+      cmpayChargeTarget: data.cmpayChargeTarget,
+      cmpayChargeActual: data.cmpayChargeActual,
+      cmpayProfitTarget: data.cmpayProfitTarget,
+      cmpayProfitActual: data.cmpayProfitActual,
+      cmpayActiveUserCount: data.cmpayActiveUserCount,
     };
   });
 

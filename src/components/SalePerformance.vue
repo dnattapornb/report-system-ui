@@ -118,7 +118,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-10">
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
-                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.actualHotels }}</h4>
+                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.hotelActual }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
@@ -127,41 +127,41 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   +{{ monthlyDeepDiveKpis.totalNewClients }}
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">
-                  {{ monthlyDeepDiveKpis.newClientsOrganic }} Organic & {{ monthlyDeepDiveKpis.newClientsBusinessPartner }} Partner
+                  {{ monthlyDeepDiveKpis.clientNewOrganicCount }} Organic & {{ monthlyDeepDiveKpis.clientNewPartnerCount }} Partner
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Drop Out</p>
                 <h4 class="text-2xl font-black text-red-600 mt-2">
-                  -{{ monthlyDeepDiveKpis.clientsDropOut }}
+                  -{{ monthlyDeepDiveKpis.clientChurnCount }}
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">Churn Rate {{ monthlyDeepDiveKpis.churnRatePercent }}%</p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pipeline Hotels</p>
                 <h4 class="text-2xl font-black text-orange-500 mt-2">
-                  {{ monthlyDeepDiveKpis.clientsFreeTrial + monthlyDeepDiveKpis.clientsPendingSetup }}
+                  {{ monthlyDeepDiveKpis.clientFreeTrialCount + monthlyDeepDiveKpis.clientPendingSetupCount }}
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">
-                  {{ monthlyDeepDiveKpis.clientsFreeTrial }} Trial & {{ monthlyDeepDiveKpis.clientsPendingSetup }} Pending
+                  {{ monthlyDeepDiveKpis.clientFreeTrialCount }} Trial & {{ monthlyDeepDiveKpis.clientPendingSetupCount }} Pending
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Achievement</p>
-                <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.actualHotels >= monthlyDeepDiveKpis.targetHotels ? 'text-emerald-600' : 'text-rose-500'">
-                  {{ ((monthlyDeepDiveKpis.actualHotels / (monthlyDeepDiveKpis.targetHotels || 1)) * 100).toFixed(1) }}%
+                <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.hotelActual >= monthlyDeepDiveKpis.hotelTarget ? 'text-emerald-600' : 'text-rose-500'">
+                  {{ ((monthlyDeepDiveKpis.hotelActual / (monthlyDeepDiveKpis.hotelTarget || 1)) * 100).toFixed(1) }}%
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">
-                  {{ monthlyDeepDiveKpis.actualHotels }} / {{ monthlyDeepDiveKpis.targetHotels }} Hotels
+                  {{ monthlyDeepDiveKpis.hotelActual }} / {{ monthlyDeepDiveKpis.hotelTarget }} Hotels
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sales Force</p>
                 <h4 class="text-2xl font-black text-indigo-600 mt-2">
-                  {{ monthlyDeepDiveKpis.totalSalesRep }} Reps
+                  {{ monthlyDeepDiveKpis.salesRepCount }} Reps
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">
-                  Avg. {{ (monthlyDeepDiveKpis.totalNewClients / (monthlyDeepDiveKpis.totalSalesRep || 1)).toFixed(1) }} Sales/Rep
+                  Avg. {{ (monthlyDeepDiveKpis.totalNewClients / (monthlyDeepDiveKpis.salesRepCount || 1)).toFixed(1) }} Sales/Rep
                 </p>
               </div>
             </div>
@@ -178,11 +178,11 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Expansion</p>
-                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.expansion) }}</p>
+                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.expansionAmount) }}</p>
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Contraction</p>
-                    <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contraction) }}</p>
+                    <p class="text-lg font-black text-orange-600">{{ formatCurrency(monthlyDeepDiveKpis.contractionAmount) }}</p>
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
@@ -190,7 +190,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Actual Profit</p>
-                    <p class="text-lg font-black text-sky-600">{{ formatCurrency(monthlyDeepDiveKpis.actualProfit) }}</p>
+                    <p class="text-lg font-black text-sky-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayProfitActual) }}</p>
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Revenue</p>
@@ -205,11 +205,11 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 <div class="grid grid-cols-1 gap-4 text-center">
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Organic</p>
-                    <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.newClientsOrganic }}</p>
+                    <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.clientNewOrganicCount }}</p>
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner</p>
-                    <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.newClientsBusinessPartner }}</p>
+                    <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.clientNewPartnerCount }}</p>
                   </div>
                   <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
                     <p class="text-xs text-blue-500 font-bold uppercase tracking-tighter">Total New</p>
@@ -223,9 +223,9 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
                 <div class="h-[300px]">
                   <HotelStatusPieChart
-                    :actual="monthlyDeepDiveKpis.actualHotels"
-                    :pending="monthlyDeepDiveKpis.clientsPendingSetup"
-                    :drop-out="monthlyDeepDiveKpis.clientsDropOut"
+                    :actual="monthlyDeepDiveKpis.hotelActual"
+                    :pending="monthlyDeepDiveKpis.clientPendingSetupCount"
+                    :drop-out="monthlyDeepDiveKpis.clientChurnCount"
                   />
                 </div>
               </section>

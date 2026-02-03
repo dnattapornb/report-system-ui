@@ -43,7 +43,7 @@ const mrrMovementChartData = computed(() => {
       {
         type: 'bar' as const,
         label: 'Expansion',
-        data: props.chartData.map(d => d.expansion),
+        data: props.chartData.map(d => d.expansionAmount),
         backgroundColor: '#22c55e', // Green
         yAxisID: 'y1',
         stack: 'stack0',
@@ -59,7 +59,7 @@ const mrrMovementChartData = computed(() => {
       {
         type: 'bar' as const,
         label: 'Contraction',
-        data: props.chartData.map(d => -d.contraction), // Negative for visual stacking
+        data: props.chartData.map(d => -d.contractionAmount), // Negative for visual stacking
         backgroundColor: '#f97316', // Orange
         yAxisID: 'y1',
         stack: 'stack0',

@@ -37,8 +37,8 @@ const chartData = computed(() => {
   
   // Calculate Avg Sales per Rep: (Organic + Partner) / Total Reps
   const efficiencyData = props.chartData.map((d) => {
-    const totalNewClients = d.newClientsOrganic + d.newClientsBusinessPartner;
-    return d.totalSalesRep > 0 ? totalNewClients / d.totalSalesRep : 0;
+    const totalNewClients = d.clientNewOrganicCount + d.clientNewPartnerCount;
+    return d.salesRepCount > 0 ? totalNewClients / d.salesRepCount : 0;
   });
   
   return {
