@@ -7,7 +7,7 @@ import '@vuepic/vue-datepicker/dist/main.css';
 
 // Import Chart Components
 import BusinessHealthTrendChart from './charts/BusinessHealthTrendChart.vue';
-import ProfitabilityChart from './charts/ProfitabilityChart.vue';
+import RevenueComparisonChart from './charts/RevenueComparisonChart.vue';
 import MRRMovementChart from './charts/MRRMovementChart.vue';
 import AcquisitionMixChart from './charts/AcquisitionMixChart.vue';
 import TargetAchievementChart from './charts/TargetAchievementChart.vue';
@@ -194,7 +194,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Revenue</p>
-                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.totalRevenue) }}</p>
+                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.actualTotalRevenue) }}</p>
                   </div>
                 </div>
               </section>
@@ -277,16 +277,16 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
               </section>
               
               <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Comparison: Actual vs. Target</h3>
                 <div class="h-[300px]">
-                  <BusinessHealthTrendChart :chart-data="annualChartData" />
+                  <RevenueComparisonChart :chart-data="annualChartData" />
                 </div>
               </section>
               
               <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">Profitability: Actual vs. Target</h3>
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
                 <div class="h-[300px]">
-                  <ProfitabilityChart :chart-data="annualChartData" />
+                  <BusinessHealthTrendChart :chart-data="annualChartData" />
                 </div>
               </section>
               

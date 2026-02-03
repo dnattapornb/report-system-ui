@@ -21,31 +21,31 @@ const formatCurrency = (val: number, compact = false) => {
   }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'THB',
     maximumFractionDigits: 0,
   }).format(val);
 };
 
 const profitChartData = computed(() => {
   const labels = props.chartData.map(d => d.label);
-  const actualData = props.chartData.map(d => d.actualProfit);
-  const targetData = props.chartData.map(d => d.targetProfit);
+  const actualTotalRevenue = props.chartData.map(d => d.actualTotalRevenue);
+  const targetTotalRevenue = props.chartData.map(d => d.targetTotalRevenue);
   
   return {
     labels,
     datasets: [
       {
         type: 'bar' as const,
-        label: 'Actual Profit',
-        data: actualData,
+        label: 'Actual Revenue',
+        data: actualTotalRevenue,
         backgroundColor: 'rgba(14, 165, 233, 0.7)', // Sky Blue
         borderRadius: 6,
         order: 2,
       },
       {
         type: 'line' as const,
-        label: 'Target Profit',
-        data: targetData,
+        label: 'Target Revenue',
+        data: targetTotalRevenue,
         borderColor: '#f97316', // Orange
         backgroundColor: '#f97316',
         pointRadius: 4,

@@ -31,14 +31,14 @@ const props = defineProps<{
 
 const chartData = computed(() => {
   const labels = props.chartData.map((d) => d.label);
-  const revenueData = props.chartData.map((d) => d.totalRevenue);
+  const actualTotalRevenue = props.chartData.map((d) => d.actualTotalRevenue);
   
   return {
     labels,
     datasets: [
       {
         label: 'Total Revenue',
-        data: revenueData,
+        data: actualTotalRevenue,
         backgroundColor: 'rgba(16, 185, 129, 0.8)', // Emerald Green
         borderRadius: 4,
         barThickness: 'flex',

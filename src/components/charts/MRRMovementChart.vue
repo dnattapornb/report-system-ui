@@ -21,7 +21,7 @@ const formatCurrency = (val: number, compact = false) => {
   }
   return new Intl.NumberFormat('en-US', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'THB',
     maximumFractionDigits: 0,
   }).format(val);
 };
