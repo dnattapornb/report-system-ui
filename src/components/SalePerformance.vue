@@ -15,6 +15,8 @@ import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
+import CMPayChart from './charts/CMPayChart.vue';
+import CMPayComparisonChart from './charts/CMPayComparisonChart.vue';
 // import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
@@ -322,6 +324,27 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 <h3 class="text-lg font-bold text-slate-700 mb-4">New Client Acquisition Mix</h3>
                 <div class="h-[300px]">
                   <AcquisitionMixChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 col-span-2">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Analysis</h3>
+                <div class="h-[300px]">
+                  <CMPayChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Charge Comparison</h3>
+                <div class="h-[300px]">
+                  <CMPayComparisonChart :chart-data="annualChartData" :metric-type="'charge'" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Profit Comparison</h3>
+                <div class="h-[300px]">
+                  <CMPayComparisonChart :chart-data="annualChartData" :metric-type="'profit'" />
                 </div>
               </section>
             </div>
