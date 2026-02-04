@@ -285,6 +285,9 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       cmpayProfitTarget: data.cmpayProfitTarget,
       cmpayProfitActual: data.cmpayProfitActual,
       cmpayActiveUserCount: data.cmpayActiveUserCount,
+      hotelgruCommissionTarget: data.hotelgruCommissionTarget,
+      hotelgruCommissionActual: data.hotelgruCommissionActual,
+      hotelgruHotelCount: data.hotelgruHotelCount,
     };
   });
 

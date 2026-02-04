@@ -199,21 +199,21 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 </div>
               </section>
               
-              <!-- Monthly Client Acquisition -->
+              <!-- Monthly Commission -->
               <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Client Acquisition</h3>
+                <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Commission</h3>
                 <div class="grid grid-cols-1 gap-4 text-center">
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Organic</p>
-                    <p class="text-lg font-black text-blue-600">{{ monthlyDeepDiveKpis.clientNewOrganicCount }}</p>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Charge</p>
+                    <p class="text-lg font-black text-violet-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual) }}</p>
                   </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner</p>
-                    <p class="text-lg font-black text-violet-600">{{ monthlyDeepDiveKpis.clientNewPartnerCount }}</p>
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Profit</p>
+                    <p class="text-lg font-black text-blue-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayProfitActual) }}</p>
                   </div>
-                  <div class="p-4 bg-blue-50 rounded-xl border border-blue-100">
-                    <p class="text-xs text-blue-500 font-bold uppercase tracking-tighter">Total New</p>
-                    <p class="text-lg font-black text-blue-700">{{ monthlyDeepDiveKpis.totalNewClients }}</p>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-blue-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">HotelGru Commission</p>
+                    <p class="text-lg font-black text-blue-700">{{ formatCurrency(monthlyDeepDiveKpis.hotelgruCommissionActual) }}</p>
                   </div>
                 </div>
               </section>
