@@ -44,9 +44,9 @@ const periodTotals = computed(() => {
 </script>
 
 <template>
-  <div class="flex flex-col h-full space-y-6">
+  <div class="flex flex-col space-y-6">
     <!-- Top Section: KPIs & Gauges -->
-    <div class="flex flex-col h-full space-y-6">
+    <div class="flex flex-col space-y-6">
       <!-- KPIs -->
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
@@ -81,7 +81,7 @@ const periodTotals = computed(() => {
     </div>
     
     <!-- Bottom Section: Combo Chart -->
-    <div class="flex-grow bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+    <div class="flex-grow bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
       <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Monthly Trend</h3>
       <div class="h-[300px]">
         <CMPayComboChart :chart-data="chartData" />
