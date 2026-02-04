@@ -25,6 +25,9 @@ export interface SaaSMetricItem {
   cmpayProfitTarget: number;
   cmpayProfitActual: number;
   cmpayActiveUserCount: number;
+  hotelgruCommissionTarget: number;
+  hotelgruCommissionActual: number;
+  hotelgruHotelCount: number;
   label?: string;
 }
 

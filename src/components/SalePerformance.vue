@@ -15,9 +15,7 @@ import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
-import CMPayChart from './charts/CMPayChart.vue';
-import CMPayComparisonChart from './charts/CMPayComparisonChart.vue';
-// import HotelWaterfallChart from './charts/HotelWaterfallChart.vue';
+import CMPayDashboard from './CMPayDashboard.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
 const store = useSaasMetricsStore();
@@ -63,7 +61,6 @@ const annualChartData = computed(() => store.annualChartData);
 const annualComparison = computed(() => store.annualComparison);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
-// const hotelWaterfallData = computed(() => store.hotelWaterfallData);
 </script>
 
 <template>
@@ -254,7 +251,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
             <div v-if="annualComparison">
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                 <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ key }} (Annual)</p>
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ data.label }} (Annual)</p>
                   <h3 class="text-2xl font-black text-slate-800">
                     {{ key === 'newClients' ? data.current : formatCurrency(data.current) }}
                   </h3>
@@ -262,7 +259,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   <span :class="data.growth >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
                     {{ data.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(data.growth).toFixed(1) }}%
                   </span>
-                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }}</span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ key === 'newClients' ? data.prev : formatCurrency(data.prev) }})</span>
                   </div>
                   <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
                 </div>
@@ -327,39 +324,12 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 col-span-2">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Analysis</h3>
-                <div class="h-[300px]">
-                  <CMPayChart :chart-data="annualChartData" />
-                </div>
-              </section>
-              
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Charge Comparison</h3>
-                <div class="h-[300px]">
-                  <CMPayComparisonChart :chart-data="annualChartData" :metric-type="'charge'" />
-                </div>
-              </section>
-              
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Profit Comparison</h3>
-                <div class="h-[300px]">
-                  <CMPayComparisonChart :chart-data="annualChartData" :metric-type="'profit'" />
-                </div>
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
+                <CMPayDashboard :chart-data="annualChartData" />
               </section>
             </div>
           </div>
-          
-          <!-- Hotel Waterfall Chart -->
-          <!--<section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-            <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Net Growth (Waterfall)</h3>
-            <div v-if="hotelWaterfallData" class="h-[300px]">
-              <HotelWaterfallChart :chart-data="hotelWaterfallData" />
-            </div>
-            <div v-else class="h-[300px] flex items-center justify-center text-slate-400 italic">
-              Not enough data for waterfall.
-            </div>
-          </section>-->
         </section>
       </div>
     </div>

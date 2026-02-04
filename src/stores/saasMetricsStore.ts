@@ -157,7 +157,9 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
       const totals = {
         revenueActual: 0,
-        totalProfit: 0,
+        cmpayProfitActual: 0,
+        cmpayChargeActual: 0,
+        hotelgruCommissionActual: 0,
         newClients: 0,
         avgMrr: 0,
         monthCount: 0,
@@ -165,7 +167,9 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
       Object.values(months).forEach((m) => {
         totals.revenueActual += m.revenueActual;
-        totals.totalProfit += m.cmpayProfitActual;
+        totals.cmpayProfitActual += m.cmpayProfitActual;
+        totals.cmpayChargeActual += m.cmpayChargeActual;
+        totals.hotelgruCommissionActual += m.hotelgruCommissionActual;
         totals.newClients += m.clientNewOrganicCount + m.clientNewPartnerCount;
         totals.avgMrr += m.mrr;
         totals.monthCount++;
@@ -190,24 +194,40 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       prevYear,
       metrics: {
         revenue: {
+          label: 'revenue',
           current: currentTotals.revenueActual,
           prev: prevTotals?.revenueActual,
           growth: calculateGrowth(currentTotals.revenueActual, prevTotals?.revenueActual),
         },
-        profit: {
-          current: currentTotals.totalProfit,
-          prev: prevTotals?.totalProfit,
-          growth: calculateGrowth(currentTotals.totalProfit, prevTotals?.totalProfit),
-        },
-        newClients: {
-          current: currentTotals.newClients,
-          prev: prevTotals?.newClients,
-          growth: calculateGrowth(currentTotals.newClients, prevTotals?.newClients),
-        },
         mrr: {
+          label: 'avg. mrr',
           current: currentTotals.avgMrr,
           prev: prevTotals?.avgMrr,
           growth: calculateGrowth(currentTotals.avgMrr, prevTotals?.avgMrr),
+        },
+        cmpayChargeActual: {
+          label: 'cm pay charge',
+          current: currentTotals.cmpayChargeActual,
+          prev: prevTotals?.cmpayChargeActual,
+          growth: calculateGrowth(currentTotals.cmpayChargeActual, prevTotals?.cmpayChargeActual),
+        },
+        cmpayProfitActual: {
+          label: 'cm pay profit',
+          current: currentTotals.cmpayProfitActual,
+          prev: prevTotals?.cmpayProfitActual,
+          growth: calculateGrowth(currentTotals.cmpayProfitActual, prevTotals?.cmpayProfitActual),
+        },
+        hotelgruCommissionActual: {
+          label: 'hotelgru commission',
+          current: currentTotals.hotelgruCommissionActual,
+          prev: prevTotals?.hotelgruCommissionActual,
+          growth: calculateGrowth(currentTotals.hotelgruCommissionActual, prevTotals?.hotelgruCommissionActual),
+        },
+        newClients: {
+          label: 'new clients',
+          current: currentTotals.newClients,
+          prev: prevTotals?.newClients,
+          growth: calculateGrowth(currentTotals.newClients, prevTotals?.newClients),
         },
       },
     };
