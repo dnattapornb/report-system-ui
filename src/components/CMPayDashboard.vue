@@ -22,7 +22,7 @@ const periodTotals = computed(() => {
   }
   
   const lastMonthWithUsers = [...props.chartData].reverse().find(m => m.cmpayActiveUserCount > 0);
-
+  
   const totals = props.chartData.reduce((acc, month) => {
     acc.totalCharge += month.cmpayChargeActual;
     acc.totalChargeTarget += month.cmpayChargeTarget;
@@ -35,7 +35,7 @@ const periodTotals = computed(() => {
     totalProfit: 0,
     totalProfitTarget: 0,
   });
-
+  
   return {
     ...totals,
     totalActiveUsers: lastMonthWithUsers ? lastMonthWithUsers.cmpayActiveUserCount : 0,
@@ -51,7 +51,7 @@ const periodTotals = computed(() => {
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
           <p class="text-sm font-bold text-slate-500 uppercase">Total Charge</p>
-          <p class="text-2xl font-black text-blue-600">{{ formatCurrency(periodTotals.totalCharge) }}</p>
+          <p class="text-2xl font-black text-orange-500">{{ formatCurrency(periodTotals.totalCharge) }}</p>
         </div>
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
           <p class="text-sm font-bold text-slate-500 uppercase">Active Users</p>
@@ -67,6 +67,7 @@ const periodTotals = computed(() => {
             :value="periodTotals.totalCharge"
             :max="periodTotals.totalChargeTarget"
             label="Charge"
+            :show-min-max-labels="true"
           />
         </div>
         <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-center">
@@ -75,6 +76,7 @@ const periodTotals = computed(() => {
             :value="periodTotals.totalProfit"
             :max="periodTotals.totalProfitTarget"
             label="Profit"
+            :show-min-max-labels="true"
           />
         </div>
       </div>

@@ -18,6 +18,7 @@ const props = defineProps<{
   value: number;
   max: number;
   label: string;
+  showMinMaxLabels?: boolean;
 }>();
 
 const percentage = computed(() => {
@@ -71,11 +72,10 @@ const chartOptions = computed((): ChartOptions<'doughnut'> => ({
       <span class="text-xs font-bold text-slate-500 uppercase tracking-wider mt-1">
         {{ label }}
       </span>
-      <!-- ✨ Add Actual vs Target values -->
-      <div class="absolute bottom-2 text-center text-[10px] text-slate-400">
-        <span class="font-bold text-slate-600">{{ formatCurrency(value, true) }}</span> /
-        <span>{{ formatCurrency(max, true) }}</span>
-      </div>
+    </div>
+    <div v-if="showMinMaxLabels" class="absolute bottom-0 w-full flex justify-between text-[10px] text-slate-400 px-2 py-2">
+      <span class="font-bold text-slate-600">{{ formatCurrency(value, true) }}</span>
+      <span>{{ formatCurrency(max, true) }}</span>
     </div>
   </div>
 </template>

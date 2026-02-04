@@ -16,6 +16,7 @@ import PipelineHealthChart from './charts/PipelineHealthChart.vue';
 import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
 import CMPayDashboard from './CMPayDashboard.vue';
+import HotelGruDashboard from './HotelGruDashboard.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
 const store = useSaasMetricsStore();
@@ -324,9 +325,14 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2 xl:col-span-2 2xl:col-span-2">
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
                 <CMPayDashboard :chart-data="annualChartData" />
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Performance</h3>
+                <HotelGruDashboard :chart-data="annualChartData" />
               </section>
             </div>
           </div>
