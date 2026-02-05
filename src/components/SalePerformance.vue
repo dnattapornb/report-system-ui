@@ -164,6 +164,16 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                   Avg. {{ (monthlyDeepDiveKpis.totalNewClients / (monthlyDeepDiveKpis.salesRepCount || 1)).toFixed(1) }} Sales/Rep
                 </p>
               </div>
+              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">CM Pay Active Users</p>
+                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.cmpayActiveUserCount }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
+              </div>
+              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Gru Active Hotels</p>
+                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.hotelgruHotelCount }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
+              </div>
             </div>
             
             <!-- Monthly Deep Dive Charts -->
@@ -277,7 +287,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
               </section>
               
               <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Comparison: Actual vs. Target</h3>
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Trend: Actual vs. Target</h3>
                 <div class="h-[300px]">
                   <RevenueComparisonChart :chart-data="annualChartData" />
                 </div>
