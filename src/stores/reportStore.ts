@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import apiClient from '../services/api';
 import { socket } from '../services/socket';
-import type { SaaSMetricsData } from '../types/report';
+import type { ReportMetricsData, DashboardData } from '../types/report';
 
 export interface OnlineUser {
   id: string;
@@ -13,8 +13,10 @@ export interface OnlineUser {
   connectedAt: string;
 }
 
-export const useSaasMetricsStore = defineStore('saasMetrics', () => {
-  const saasMetricsData = ref<SaaSMetricsData | null>(null);
+export const useReportStore = defineStore('report', () => {
+  const dashboardData = ref<DashboardData | null>(null);
+  const reportMetricsData = computed(() => dashboardData.value?.metrics ?? null);
+  const reportBreakdownData = computed(() => dashboardData.value?.breakdown ?? null);
 
   const onlineUsers = ref<OnlineUser[]>([]);
   const onlineUsersCount = ref<number>(0);
@@ -23,9 +25,9 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
   // --- Actions ---
   async function fetchAndConnect() {
-    socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
-      console.log('[Synced] Real-time SaaS Metrics updated via WebSocket');
-      saasMetricsData.value = newData;
+    socket.on('update:saas-metrics', (newData: DashboardData) => {
+      console.log('[Synced] Real-time Report updated via WebSocket');
+      dashboardData.value = newData;
     });
 
     socket.on('update:online-users', (data: { count: number; users: OnlineUser[] }) => {
@@ -34,26 +36,26 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       onlineUsers.value = data.users;
     });
 
-    if (saasMetricsData.value) return;
+    if (reportMetricsData.value) return;
 
     try {
       const response = await apiClient.get('/reports');
-      saasMetricsData.value = response.data;
+      dashboardData.value = response.data;
 
-      if (saasMetricsData.value) {
+      if (reportMetricsData.value) {
         const now = new Date();
         const currentYearStr = now.getFullYear().toString();
         const currentMonthStr = (now.getMonth() + 1).toString().padStart(2, '0');
 
         // Initialize selectedYearMonth
-        if (saasMetricsData.value[currentYearStr]?.[currentMonthStr]) {
+        if (reportMetricsData.value[currentYearStr]?.[currentMonthStr]) {
           selectedYearMonth.value = { year: currentYearStr, month: currentMonthStr };
         } else {
           // Fallback to latest available data
-          const years = Object.keys(saasMetricsData.value).sort((a, b) => parseInt(b) - parseInt(a));
+          const years = Object.keys(reportMetricsData.value).sort((a, b) => parseInt(b) - parseInt(a));
           const latestYear = years[0];
           if (latestYear) {
-            const months = Object.keys(saasMetricsData.value[latestYear]).sort((a, b) => parseInt(b) - parseInt(a));
+            const months = Object.keys(reportMetricsData.value[latestYear]).sort((a, b) => parseInt(b) - parseInt(a));
             const latestMonth = months[0] || '01';
             selectedYearMonth.value = { year: latestYear, month: latestMonth };
           }
@@ -66,14 +68,14 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
 
   // --- Getters ---
   const allAvailableYears = computed(() => {
-    if (!saasMetricsData.value) return [];
-    return Object.keys(saasMetricsData.value).sort((a, b) => parseInt(a) - parseInt(b));
+    if (!reportMetricsData.value) return [];
+    return Object.keys(reportMetricsData.value).sort((a, b) => parseInt(a) - parseInt(b));
   });
 
   const annualChartData = computed(() => {
-    if (!saasMetricsData.value) return [];
+    if (!reportMetricsData.value) return [];
 
-    let dataToProcess: SaaSMetricsData = saasMetricsData.value;
+    let dataToProcess: ReportMetricsData = reportMetricsData.value;
     // Use the year from selectedYearMonth
     let year = null;
     if (selectedYearMonth.value) {
@@ -95,64 +97,14 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
       .sort((a, b) => new Date(`${a.year}-${a.month}-01`).getTime() - new Date(`${b.year}-${b.month}-01`).getTime());
   });
 
-  const hotelWaterfallData = computed(() => {
-    if (!saasMetricsData.value || !selectedYearMonth.value) return null;
-
-    const currentYear = selectedYearMonth.value.year;
-    const prevYear = (parseInt(currentYear) - 1).toString();
-
-    let startingBalance = 0;
-    if (saasMetricsData.value[prevYear] && saasMetricsData.value[prevYear]['12']) {
-      startingBalance = saasMetricsData.value[prevYear]['12'].hotelActual;
-    }
-
-    const months = saasMetricsData.value[currentYear];
-    if (!months) return null;
-
-    const sortedMonths = Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
-
-    const labels = [`Start (${prevYear})`];
-    const newData = [0];
-    const dropData = [0];
-    const balanceData = [startingBalance];
-
-    let currentBalance = startingBalance;
-
-    for (const month of sortedMonths) {
-      const data = months[month];
-      const newClients = data.clientNewOrganicCount + data.clientNewPartnerCount;
-      const dropOut = data.clientChurnCount;
-
-      labels.push(`${new Date(Date.parse(month + ' 1, 2012')).toLocaleString('default', { month: 'short' })}`);
-      newData.push(newClients);
-      dropData.push(-dropOut);
-
-      currentBalance += newClients - dropOut;
-      balanceData.push(currentBalance);
-    }
-
-    labels.push(`End (${currentYear})`);
-    newData.push(0);
-    dropData.push(0);
-    balanceData.push(currentBalance);
-
-    return {
-      labels,
-      newData,
-      dropData,
-      balanceData,
-      startingBalance,
-    };
-  });
-
   const annualComparison = computed(() => {
-    if (!saasMetricsData.value || !selectedYearMonth.value) return null;
+    if (!reportMetricsData.value || !selectedYearMonth.value) return null;
 
     const currentYear = selectedYearMonth.value.year;
     const prevYear = (parseInt(currentYear) - 1).toString();
 
     const calculateYearlyTotals = (year: string) => {
-      const months = saasMetricsData.value![year];
+      const months = reportMetricsData.value![year];
       if (!months) return null;
 
       const totals = {
@@ -234,10 +186,10 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
   });
 
   const monthlyDeepDiveData = computed(() => {
-    if (!saasMetricsData.value || !selectedYearMonth.value) return [];
+    if (!reportMetricsData.value || !selectedYearMonth.value) return [];
 
     const { year, month } = selectedYearMonth.value;
-    const dataToProcess = saasMetricsData.value;
+    const dataToProcess = reportMetricsData.value;
 
     if (dataToProcess[year]?.[month]) {
       return Object.entries({
@@ -291,15 +243,10 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     };
   });
 
-  const monthlyAvailableMonths = computed(() => {
-    if (!saasMetricsData.value || !selectedYearMonth.value?.year) return [];
-    const months = saasMetricsData.value[selectedYearMonth.value.year];
-    if (!months) return [];
-    return Object.keys(months).sort((a, b) => parseInt(a) - parseInt(b));
-  });
-
   return {
-    saasMetricsData,
+    dashboardData,
+    reportMetricsData,
+    reportBreakdownData,
     onlineUsers,
     onlineUsersCount,
     selectedYearMonth,
@@ -307,9 +254,7 @@ export const useSaasMetricsStore = defineStore('saasMetrics', () => {
     allAvailableYears,
     annualChartData,
     annualComparison,
-    hotelWaterfallData,
     monthlyDeepDiveData,
     monthlyDeepDiveKpis,
-    monthlyAvailableMonths,
   };
 });

@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { SaaSMetricItem } from '../types/report';
+import type { ReportMetricItem } from '../types/report';
 import { formatCurrency } from '../utils/formatters';
 import GaugeChart from './charts/GaugeChart.vue';
 import HotelGruComboChart from './charts/HotelGruComboChart.vue';
 
 const props = defineProps<{
-  chartData: SaaSMetricItem[];
+  chartData: ReportMetricItem[];
 }>();
 
 // Calculate totals for the selected period

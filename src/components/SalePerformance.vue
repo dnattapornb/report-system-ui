@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useSaasMetricsStore } from '../stores/saasMetricsStore';
+import { useReportStore } from '../stores/reportStore';
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { formatCurrency, formatPercentage } from '../utils/formatters';
 import '@vuepic/vue-datepicker/dist/main.css';
@@ -19,7 +19,7 @@ import CMPayDashboard from './CMPayDashboard.vue';
 import HotelGruDashboard from './HotelGruDashboard.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
-const store = useSaasMetricsStore();
+const store = useReportStore();
 
 const yearRange = computed((): [number, number] => {
   if (store.allAvailableYears.length === 0) return [2024, 2026];
@@ -94,7 +94,7 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
       </div>
       
       <!-- Loading State -->
-      <div v-if="!store.saasMetricsData" class="text-center p-12 text-slate-500 text-lg">
+      <div v-if="!store.reportMetricsData" class="text-center p-12 text-slate-500 text-lg">
         Loading SaaS Metrics Data...
       </div>
       <div v-else-if="store.allAvailableYears.length === 0" class="text-center p-12 text-slate-500 text-lg">

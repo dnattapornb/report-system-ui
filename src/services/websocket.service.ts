@@ -1,15 +1,15 @@
 import { socket } from './socket';
-import type { SaaSMetricsData } from '../types/report';
+import type { ReportMetricsData } from '../types/report';
 
-let updateCallback: ((data: SaaSMetricsData) => void) | null = null;
+let updateCallback: ((data: ReportMetricsData) => void) | null = null;
 
-export function initWebSocket(callback: (data: SaaSMetricsData) => void) {
+export function initWebSocket(callback: (data: ReportMetricsData) => void) {
   if (updateCallback) {
     socket.off('update:saas-metrics', updateCallback);
   }
   updateCallback = callback;
 
-  socket.on('update:saas-metrics', (newData: SaaSMetricsData) => {
+  socket.on('update:saas-metrics', (newData: ReportMetricsData) => {
     if (updateCallback) {
       updateCallback(newData);
     }

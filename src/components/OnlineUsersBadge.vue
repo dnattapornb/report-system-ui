@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { useSaasMetricsStore } from '../stores/saasMetricsStore';
+import { useReportStore } from '../stores/reportStore.ts';
 
-const store = useSaasMetricsStore();
+const store = useReportStore();
 </script>
 
 <template>

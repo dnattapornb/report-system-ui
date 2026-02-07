@@ -3,12 +3,12 @@ import { computed } from 'vue';
 import { Bar } from 'vue-chartjs';
 import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, type ChartOptions, LineElement, PointElement } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import type { SaaSMetricItem } from '../../types/report'; // Adjust path
+import type { ReportMetricItem } from '../../types/report'; // Adjust path
 
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale, LineElement, PointElement, ChartDataLabels);
 
 const props = defineProps<{
-  chartData: SaaSMetricItem[];
+  chartData: ReportMetricItem[];
 }>();
 
 const formatCurrency = (val: number, compact = false) => {

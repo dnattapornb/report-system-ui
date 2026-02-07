@@ -14,7 +14,7 @@ import {
   type ChartOptions,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import type { SaaSMetricItem } from '../../types/report';
+import type { ReportMetricItem } from '../../types/report';
 
 ChartJS.register(
   Title,
@@ -29,7 +29,7 @@ ChartJS.register(
 );
 
 const props = defineProps<{
-  chartData: SaaSMetricItem[];
+  chartData: ReportMetricItem[];
 }>();
 
 const chartData = computed(() => {
