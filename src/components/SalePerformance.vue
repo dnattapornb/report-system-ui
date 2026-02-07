@@ -74,11 +74,11 @@ const breakdownData = computed(() => store.reportBreakdownData);
 </script>
 
 <template>
-  <div class="min-h-screen bg-slate-100 p-4 md:p-8 font-sans min-w-screen">
+  <div class="min-h-screen bg-slate-100 font-sans min-w-screen">
     <div class="space-y-4">
       
       <!-- Global Header & Filter -->
-      <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
+      <div class="sticky top-0 z-50 shadow bg-white p-6 border border-slate-200 flex flex-col md:flex-row justify-between items-center gap-4">
         <div class="flex items-center gap-4">
           <h4 class="text-3xl font-black text-slate-800 tracking-tight uppercase">Sale Performance Dashboard</h4>
           <OnlineUsersBadge />
@@ -112,7 +112,7 @@ const breakdownData = computed(() => store.reportBreakdownData);
       
       <div v-else class="space-y-12">
         <!-- Sale Performance Section -->
-        <section class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+        <section class="bg-white p-6 shadow-md border border-slate-200">
           <!-- Monthly Deep Dive Section -->
           <div v-if="monthlyDeepDiveData && monthlyDeepDiveKpis">
             <!-- Monthly Deep Dive Header Section -->
