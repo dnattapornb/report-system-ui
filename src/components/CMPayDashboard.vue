@@ -4,6 +4,7 @@ import type { ReportMetricItem } from '../types/report';
 import { formatCurrency } from '../utils/formatters';
 import GaugeChart from './charts/GaugeChart.vue';
 import CMPayComboChart from './charts/CMPayComboChart.vue';
+import CMPayComparisonChart from './charts/CMPayComparisonChart.vue';
 
 const props = defineProps<{
   chartData: ReportMetricItem[];
@@ -50,18 +51,20 @@ const periodTotals = computed(() => {
       <!-- KPIs -->
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-          <p class="text-sm font-bold text-slate-500 uppercase">Total Charge</p>
-          <p class="text-2xl font-black text-orange-500">{{ formatCurrency(periodTotals.totalCharge) }}</p>
+          <p class="text-sm font-bold text-slate-500 uppercase mb-1">Total Profit</p>
+          <h4 class="text-2xl font-black text-blue-600 mb-2">{{ formatCurrency(periodTotals.totalProfit) }}</h4>
+          <p class="text-[10px] text-slate-400 mt-1">Total Charge {{ formatCurrency(periodTotals.totalCharge) }}</p>
         </div>
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-          <p class="text-sm font-bold text-slate-500 uppercase">Active Users</p>
-          <p class="text-2xl font-black text-emerald-600">{{ periodTotals.totalActiveUsers }}</p>
+          <p class="text-sm font-bold text-slate-500 uppercase mb-1">Active Users</p>
+          <p class="text-2xl font-black text-emerald-600 mb-2">{{ periodTotals.totalActiveUsers }}</p>
+          <p class="text-[10px] text-slate-400 mt-1">Overview</p>
         </div>
       </div>
       
       <!-- Gauges -->
       <div class="grid grid-cols-2 gap-4">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-center">
+        <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Charge vs Target</h4>
           <GaugeChart
             :value="periodTotals.totalCharge"
@@ -70,7 +73,7 @@ const periodTotals = computed(() => {
             :show-min-max-labels="true"
           />
         </div>
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-center">
+        <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Profit vs Target</h4>
           <GaugeChart
             :value="periodTotals.totalProfit"
@@ -83,11 +86,17 @@ const periodTotals = computed(() => {
     </div>
     
     <!-- Bottom Section: Combo Chart -->
-    <div class="flex-grow bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
+    <div class="flex-grow bg-white p-6 border border-slate-100 overflow-hidden">
       <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Trend</h3>
-      <div class="h-[300px]">
-        <CMPayComboChart :chart-data="chartData" />
+      <div class="grid grid-cols-2 gap-2">
+        <div class="h-[300px]">
+          <CMPayComboChart :chart-data="chartData" />
+        </div>
+        <div class="h-[300px]">
+          <CMPayComparisonChart :chart-data="chartData" :metric-type="'profit'" />
+        </div>
       </div>
+      
     </div>
   </div>
 </template>

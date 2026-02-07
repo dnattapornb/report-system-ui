@@ -17,18 +17,20 @@ ChartJS.register(Title, Tooltip, Legend, ArcElement, CategoryScale, ChartDataLab
 const props = defineProps<{
   actual: number;
   pending: number;
+  freeTrial: number;
   dropOut: number;
 }>();
 
 const chartData = computed(() => {
   return {
-    labels: ['Live Hotels', 'Pending Setup', 'Drop Out'],
+    labels: ['Live Hotels', 'Pending Setup', 'Free Trial', 'Drop Out'],
     datasets: [
       {
-        data: [props.actual, props.pending, props.dropOut],
+        data: [props.actual, props.pending, props.freeTrial, props.dropOut],
         backgroundColor: [
           '#10b981', // Live (Emerald)
-          '#f59e0b', // Pending (Amber)
+          '#fb923c', // Pending (Orange)
+          '#facc15', // Free Trial (Yellow)
           '#ef4444', // Drop Out (Red)
         ],
         borderWidth: 0,

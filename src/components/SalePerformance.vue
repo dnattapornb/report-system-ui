@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { useReportStore } from '../stores/reportStore';
 import { VueDatePicker } from '@vuepic/vue-datepicker';
 import { formatCurrency, formatPercentage } from '../utils/formatters';
+import { useBreakpoints } from '@vueuse/core';
 import '@vuepic/vue-datepicker/dist/main.css';
 
 // Import Chart Components
@@ -21,6 +22,12 @@ import BreakdownPieChart from './charts/BreakdownPieChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
 const store = useReportStore();
+
+// Setup Breakpoints
+const breakpoints = useBreakpoints({
+  xl: 1920,
+});
+const isCompactView = breakpoints.smaller('xl'); // true if screen is < 1280px
 
 const yearRange = computed((): [number, number] => {
   if (store.allAvailableYears.length === 0) return [2024, 2026];
@@ -118,12 +125,12 @@ const breakdownData = computed(() => store.reportBreakdownData);
             
             <!-- Monthly Deep Dive Cards -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-10">
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
                 <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.hotelActual }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">New Clients</p>
                 <h4 class="text-2xl font-black text-violet-600 mt-2">
                   +{{ monthlyDeepDiveKpis.totalNewClients }}
@@ -132,14 +139,14 @@ const breakdownData = computed(() => store.reportBreakdownData);
                   {{ monthlyDeepDiveKpis.clientNewOrganicCount }} Organic & {{ monthlyDeepDiveKpis.clientNewPartnerCount }} Partner
                 </p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Drop Out</p>
                 <h4 class="text-2xl font-black text-red-600 mt-2">
                   -{{ monthlyDeepDiveKpis.clientChurnCount }}
                 </h4>
                 <p class="text-[10px] text-slate-400 mt-1">Churn Rate {{ monthlyDeepDiveKpis.churnRatePercent }}%</p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Pipeline Hotels</p>
                 <h4 class="text-2xl font-black text-orange-500 mt-2">
                   {{ monthlyDeepDiveKpis.clientFreeTrialCount + monthlyDeepDiveKpis.clientPendingSetupCount }}
@@ -148,7 +155,7 @@ const breakdownData = computed(() => store.reportBreakdownData);
                   {{ monthlyDeepDiveKpis.clientFreeTrialCount }} Trial & {{ monthlyDeepDiveKpis.clientPendingSetupCount }} Pending
                 </p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Achievement</p>
                 <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.hotelActual >= monthlyDeepDiveKpis.hotelTarget ? 'text-emerald-600' : 'text-rose-500'">
                   {{ ((monthlyDeepDiveKpis.hotelActual / (monthlyDeepDiveKpis.hotelTarget || 1)) * 100).toFixed(1) }}%
@@ -157,7 +164,7 @@ const breakdownData = computed(() => store.reportBreakdownData);
                   {{ monthlyDeepDiveKpis.hotelActual }} / {{ monthlyDeepDiveKpis.hotelTarget }} Hotels
                 </p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Sales Force</p>
                 <h4 class="text-2xl font-black text-indigo-600 mt-2">
                   {{ monthlyDeepDiveKpis.salesRepCount }} Reps
@@ -166,24 +173,33 @@ const breakdownData = computed(() => store.reportBreakdownData);
                   Avg. {{ (monthlyDeepDiveKpis.totalNewClients / (monthlyDeepDiveKpis.salesRepCount || 1)).toFixed(1) }} Sales/Rep
                 </p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">CM Pay Active Users</p>
-                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.cmpayActiveUserCount }}</h4>
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Gru Active Hotels</p>
+                <h4 class="text-2xl font-black text-sky-600 mt-2">{{ monthlyDeepDiveKpis.hotelgruHotelCount }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
-              <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Gru Active Hotels</p>
-                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.hotelgruHotelCount }}</h4>
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">CM Pay Active Users</p>
+                <h4 class="text-2xl font-black text-blue-600 mt-2">{{ monthlyDeepDiveKpis.cmpayActiveUserCount }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
+              </div>
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Cm Pay Charge</p>
+                <h4 class="text-2xl font-black text-violet-600 mt-2">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual, isCompactView) }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1"></p>
               </div>
             </div>
             
             <!-- Monthly Deep Dive Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-10">
               <!-- Monthly MRR Breakdown -->
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Revenue Breakdown</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-center">
+                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100 md:col-span-2">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Revenue</p>
+                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.revenueActual) }}</p>
+                  </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">MRR</p>
                     <p class="text-lg font-black text-blue-600">{{ formatCurrency(monthlyDeepDiveKpis.mrr) }}</p>
@@ -200,43 +216,36 @@ const breakdownData = computed(() => store.reportBreakdownData);
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Churn</p>
                     <p class="text-lg font-black text-rose-600">{{ formatCurrency(monthlyDeepDiveKpis.churnAmount) }}</p>
                   </div>
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Actual Profit</p>
-                    <p class="text-lg font-black text-sky-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayProfitActual) }}</p>
-                  </div>
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Revenue</p>
-                    <p class="text-lg font-black text-emerald-600">{{ formatCurrency(monthlyDeepDiveKpis.revenueActual) }}</p>
-                  </div>
                 </div>
               </section>
               
               <!-- Monthly Commission -->
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-6">Monthly Commission</h3>
                 <div class="grid grid-cols-1 gap-4 text-center">
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Charge</p>
-                    <p class="text-lg font-black text-violet-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual) }}</p>
-                  </div>
-                  <div class="p-4 bg-slate-50 rounded-xl border border-slate-100">
-                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Profit</p>
-                    <p class="text-lg font-black text-blue-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayProfitActual) }}</p>
-                  </div>
                   <div class="p-4 bg-slate-50 rounded-xl border border-blue-100">
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">HotelGru Commission</p>
                     <p class="text-lg font-black text-blue-700">{{ formatCurrency(monthlyDeepDiveKpis.hotelgruCommissionActual) }}</p>
                   </div>
+                  <div class="p-4 bg-slate-50 rounded-xl border border-sky-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Profit</p>
+                    <p class="text-lg font-black text-sky-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayProfitActual) }}</p>
+                  </div>
+                  <!--<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">-->
+                  <!--  <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Charge</p>-->
+                  <!--  <p class="text-lg font-black text-violet-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual) }}</p>-->
+                  <!--</div>-->
                 </div>
               </section>
               
               <!-- Hotel Status Pie Chart -->
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-6">Hotel Portfolio Status</h3>
                 <div class="h-[300px]">
                   <HotelStatusPieChart
                     :actual="monthlyDeepDiveKpis.hotelActual"
                     :pending="monthlyDeepDiveKpis.clientPendingSetupCount"
+                    :free-trial="monthlyDeepDiveKpis.clientFreeTrialCount"
                     :drop-out="monthlyDeepDiveKpis.clientChurnCount"
                   />
                 </div>
@@ -263,7 +272,7 @@ const breakdownData = computed(() => store.reportBreakdownData);
             <!-- Annual YoY Comparison Cards -->
             <div v-if="annualComparison">
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+                <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ data.label }} (Annual)</p>
                   <h3 class="text-2xl font-black text-slate-800">
                     {{ key === 'newClients' ? data.current : formatCurrency(data.current) }}
@@ -281,68 +290,68 @@ const breakdownData = computed(() => store.reportBreakdownData);
             
             <!-- Annual Performance Analysis Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Total Revenue Trend</h3>
                 <div class="h-[300px]">
                   <TotalRevenueChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Trend: Actual vs. Target</h3>
                 <div class="h-[300px]">
                   <RevenueComparisonChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Business Health Trend (NRR, GRR, Churn)</h3>
                 <div class="h-[300px]">
                   <BusinessHealthTrendChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">MRR Movement Analysis</h3>
                 <div class="h-[400px]">
                   <MRRMovementChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Target Achievement</h3>
                 <div class="h-[300px]">
                   <TargetAchievementChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Sales Efficiency (Avg. Sales / Rep)</h3>
                 <div class="h-[300px]">
                   <SalesEfficiencyChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Pipeline Health (Trial & Pending)</h3>
                 <div class="h-[300px]">
                   <PipelineHealthChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">New Client Acquisition Mix</h3>
                 <div class="h-[300px]">
                   <AcquisitionMixChart :chart-data="annualChartData" />
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
                 <CMPayDashboard :chart-data="annualChartData" />
               </section>
               
-              <section class="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 lg:col-span-2">
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Performance</h3>
                 <HotelGruDashboard :chart-data="annualChartData" />
               </section>
@@ -354,6 +363,9 @@ const breakdownData = computed(() => store.reportBreakdownData);
             <!-- Breakdown Charts Header Section -->
             <div class="border-b border-slate-100 pb-4 mt-8 mb-8">
               <h2 class="text-1xl font-bold text-slate-800 text-left">Market Share & Distribution</h2>
+              <p class="text-sm text-slate-500 mt-1 text-left">
+                Overview current
+              </p>
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-6 mb-10">

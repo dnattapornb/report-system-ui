@@ -45,6 +45,7 @@ const chartData = computed(() => {
         data: props.chartData.map((d) => d.cmpayActiveUserCount),
         backgroundColor: 'rgba(16, 185, 129, 0.5)', // Light Emerald
         yAxisID: 'y1',
+        borderRadius: 4,
         order: 2,
       },
       {
@@ -56,17 +57,7 @@ const chartData = computed(() => {
         yAxisID: 'y',
         tension: 0.4,
         order: 0,
-      },
-      {
-        type: 'line' as const,
-        label: 'Actual Charge',
-        data: props.chartData.map((d) => d.cmpayChargeActual),
-        borderColor: '#f97316', // Orange
-        backgroundColor: '#f97316',
-        yAxisID: 'y',
-        tension: 0.4,
-        order: 1,
-      },
+      }
     ],
   };
 });

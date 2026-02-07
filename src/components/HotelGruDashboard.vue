@@ -4,6 +4,7 @@ import type { ReportMetricItem } from '../types/report';
 import { formatCurrency } from '../utils/formatters';
 import GaugeChart from './charts/GaugeChart.vue';
 import HotelGruComboChart from './charts/HotelGruComboChart.vue';
+import HotelGruComparisonChart from './charts/HotelGruComparisonChart.vue';
 
 const props = defineProps<{
   chartData: ReportMetricItem[];
@@ -44,18 +45,20 @@ const periodTotals = computed(() => {
       <!-- KPIs -->
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-          <p class="text-sm font-bold text-slate-500 uppercase">Total Commission</p>
-          <p class="text-2xl font-black text-blue-600">{{ formatCurrency(periodTotals.totalCommission) }}</p>
+          <p class="text-sm font-bold text-slate-500 uppercase mb-1">Total Commission</p>
+          <h4 class="text-2xl font-black text-blue-600 mb-2">{{ formatCurrency(periodTotals.totalCommission) }}</h4>
+          <p class="text-[10px] text-slate-400 mt-1"></p>
         </div>
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
-          <p class="text-sm font-bold text-slate-500 uppercase">Hotels</p>
-          <p class="text-2xl font-black text-emerald-600">{{ periodTotals.totalHotels }}</p>
+          <p class="text-sm font-bold text-slate-500 uppercase mb-1">Active Hotels</p>
+          <h4 class="text-2xl font-black text-emerald-600 mb-2">{{ periodTotals.totalHotels }}</h4>
+          <p class="text-[10px] text-slate-400 mt-1">Overview</p>
         </div>
       </div>
       
       <!-- Gauge -->
       <div class="grid grid-cols-2">
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-100 text-center">
+        <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Commission vs Target</h4>
           <GaugeChart
             :value="periodTotals.totalCommission"
@@ -68,10 +71,15 @@ const periodTotals = computed(() => {
     </div>
     
     <!-- Bottom Section: Combo Chart -->
-    <div class="flex-grow bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
+    <div class="flex-grow bg-white p-6 border border-slate-100">
       <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Trend</h3>
-      <div class="h-[300px]">
-        <HotelGruComboChart :chart-data="chartData" />
+      <div class="grid grid-cols-2 gap-2">
+        <div class="h-[300px]">
+          <HotelGruComboChart :chart-data="chartData" />
+        </div>
+        <div class="h-[300px]">
+          <HotelGruComparisonChart :chart-data="chartData" />
+        </div>
       </div>
     </div>
   </div>

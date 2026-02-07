@@ -41,15 +41,16 @@ const chartData = computed(() => {
     datasets: [
       {
         type: 'bar' as const,
-        label: 'Hotels',
+        label: 'Active Hotels',
         data: props.chartData.map((d) => d.hotelgruHotelCount),
         backgroundColor: 'rgba(16, 185, 129, 0.5)', // Light Emerald
         yAxisID: 'y1',
+        borderRadius: 4,
         order: 1,
       },
       {
         type: 'line' as const,
-        label: 'Commission',
+        label: 'Actual Commission',
         data: props.chartData.map((d) => d.hotelgruCommissionActual),
         borderColor: '#3b82f6', // Blue
         backgroundColor: '#3b82f6',
@@ -90,7 +91,7 @@ const chartOptions: ChartOptions = {
       type: 'linear',
       display: true,
       position: 'left',
-      title: { display: true, text: 'Commission (THB)' },
+      title: { display: true, text: 'Amount (THB)' },
       ticks: { callback: (value) => formatCurrency(value as number, true) },
     },
     y1: { // Right axis for hotel count
