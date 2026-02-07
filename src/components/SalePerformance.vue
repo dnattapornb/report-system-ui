@@ -17,6 +17,7 @@ import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
 import CMPayDashboard from './CMPayDashboard.vue';
 import HotelGruDashboard from './HotelGruDashboard.vue';
+import BreakdownPieChart from './charts/BreakdownPieChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 
 const store = useReportStore();
@@ -62,6 +63,7 @@ const annualChartData = computed(() => store.annualChartData);
 const annualComparison = computed(() => store.annualComparison);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
+const breakdownData = computed(() => store.reportBreakdownData);
 </script>
 
 <template>
@@ -344,6 +346,32 @@ const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Performance</h3>
                 <HotelGruDashboard :chart-data="annualChartData" />
               </section>
+            </div>
+          </div>
+          
+          <!-- Breakdown Charts Section -->
+          <div v-if="breakdownData">
+            <!-- Breakdown Charts Header Section -->
+            <div class="border-b border-slate-100 pb-4 mt-8 mb-8">
+              <h2 class="text-1xl font-bold text-slate-800 text-left">Market Share & Distribution</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-6 mb-10">
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+                <BreakdownPieChart title="Package" :distribution-data="breakdownData.packageDistribution" />
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+                <BreakdownPieChart title="Payment" :distribution-data="breakdownData.paymentConditionDistribution" />
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+                <BreakdownPieChart title="Revenue Model" :distribution-data="breakdownData.revenueModelDistribution" />
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+                <BreakdownPieChart title="Sales Channel" :distribution-data="breakdownData.salesChannelDistribution" />
+              </div>
+              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+                <BreakdownPieChart title="Closed By" :distribution-data="breakdownData.closedDealDistribution" />
+              </div>
             </div>
           </div>
         </section>

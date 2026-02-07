@@ -69,7 +69,7 @@ const periodTotals = computed(() => {
     
     <!-- Bottom Section: Combo Chart -->
     <div class="flex-grow bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
-      <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Monthly Trend</h3>
+      <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Trend</h3>
       <div class="h-[300px]">
         <HotelGruComboChart :chart-data="chartData" />
       </div>
