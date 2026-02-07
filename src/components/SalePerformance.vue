@@ -71,6 +71,11 @@ const annualComparison = computed(() => store.annualComparison);
 const monthlyDeepDiveData = computed(() => store.monthlyDeepDiveData);
 const monthlyDeepDiveKpis = computed(() => store.monthlyDeepDiveKpis);
 const breakdownData = computed(() => store.reportBreakdownData);
+
+// Helper to check if a metric key is a count (not currency)
+const isCountMetric = (key: string | number) => {
+  return ['newClients', 'clientChurnCount', 'hotelActual', 'cmpayActiveUserCount'].includes(String(key));
+};
 </script>
 
 <template>
@@ -275,13 +280,13 @@ const breakdownData = computed(() => store.reportBreakdownData);
                 <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ data.label }} (Annual)</p>
                   <h3 class="text-2xl font-black text-slate-800">
-                    {{ key === 'newClients' ? data.current : formatCurrency(data.current) }}
+                    {{ isCountMetric(key) ? Math.round(data.current).toLocaleString() : formatCurrency(data.current) }}
                   </h3>
                   <div v-if="data.growth !== null" class="mt-2 flex items-center gap-2">
                   <span :class="data.growth >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
                     {{ data.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(data.growth).toFixed(1) }}%
                   </span>
-                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ key === 'newClients' ? data.prev : formatCurrency(data.prev) }})</span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ isCountMetric(key) ? Math.round(data.prev || 0).toLocaleString() : formatCurrency(data.prev || 0) }})</span>
                   </div>
                   <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
                 </div>

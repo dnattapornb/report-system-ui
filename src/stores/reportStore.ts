@@ -113,7 +113,11 @@ export const useReportStore = defineStore('report', () => {
         cmpayChargeActual: 0,
         hotelgruCommissionActual: 0,
         newClients: 0,
+        clientChurnCount: 0,
+        hotelActual: 0,
         avgMrr: 0,
+        churnAmount: 0,
+        cmpayActiveUserCount: 0,
         monthCount: 0,
       };
 
@@ -123,11 +127,19 @@ export const useReportStore = defineStore('report', () => {
         totals.cmpayChargeActual += m.cmpayChargeActual;
         totals.hotelgruCommissionActual += m.hotelgruCommissionActual;
         totals.newClients += m.clientNewOrganicCount + m.clientNewPartnerCount;
+        totals.clientChurnCount += m.clientChurnCount;
+        totals.hotelActual += m.hotelActual;
         totals.avgMrr += m.mrr;
+        totals.churnAmount += m.churnAmount;
+        totals.cmpayActiveUserCount += m.cmpayActiveUserCount;
         totals.monthCount++;
       });
 
-      if (totals.monthCount > 0) totals.avgMrr /= totals.monthCount;
+      if (totals.monthCount > 0) {
+        totals.avgMrr /= totals.monthCount;
+        totals.hotelActual /= totals.monthCount; // Average Active Hotels
+        totals.cmpayActiveUserCount /= totals.monthCount; // Average Active Users
+      }
       return totals;
     };
 
@@ -157,6 +169,12 @@ export const useReportStore = defineStore('report', () => {
           prev: prevTotals?.avgMrr,
           growth: calculateGrowth(currentTotals.avgMrr, prevTotals?.avgMrr),
         },
+        churnAmount: {
+          label: 'churn revenue',
+          current: currentTotals.churnAmount,
+          prev: prevTotals?.churnAmount,
+          growth: calculateGrowth(currentTotals.churnAmount, prevTotals?.churnAmount),
+        },
         cmpayChargeActual: {
           label: 'cm pay charge',
           current: currentTotals.cmpayChargeActual,
@@ -169,8 +187,14 @@ export const useReportStore = defineStore('report', () => {
           prev: prevTotals?.cmpayProfitActual,
           growth: calculateGrowth(currentTotals.cmpayProfitActual, prevTotals?.cmpayProfitActual),
         },
+        // cmpayActiveUserCount: {
+        //   label: 'avg. cmpay users',
+        //   current: currentTotals.cmpayActiveUserCount,
+        //   prev: prevTotals?.cmpayActiveUserCount,
+        //   growth: calculateGrowth(currentTotals.cmpayActiveUserCount, prevTotals?.cmpayActiveUserCount),
+        // },
         hotelgruCommissionActual: {
-          label: 'hotelgru commission',
+          label: 'hotel gru commission',
           current: currentTotals.hotelgruCommissionActual,
           prev: prevTotals?.hotelgruCommissionActual,
           growth: calculateGrowth(currentTotals.hotelgruCommissionActual, prevTotals?.hotelgruCommissionActual),
@@ -181,6 +205,18 @@ export const useReportStore = defineStore('report', () => {
           prev: prevTotals?.newClients,
           growth: calculateGrowth(currentTotals.newClients, prevTotals?.newClients),
         },
+        clientChurnCount: {
+          label: 'total drop out',
+          current: currentTotals.clientChurnCount,
+          prev: prevTotals?.clientChurnCount,
+          growth: calculateGrowth(currentTotals.clientChurnCount, prevTotals?.clientChurnCount),
+        },
+        // hotelActual: {
+        //   label: 'avg. active hotels',
+        //   current: currentTotals.hotelActual,
+        //   prev: prevTotals?.hotelActual,
+        //   growth: calculateGrowth(currentTotals.hotelActual, prevTotals?.hotelActual),
+        // },
       },
     };
   });
