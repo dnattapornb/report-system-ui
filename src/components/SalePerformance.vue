@@ -14,12 +14,12 @@ import AcquisitionMixChart from './charts/AcquisitionMixChart.vue';
 import TargetAchievementChart from './charts/TargetAchievementChart.vue';
 import SalesEfficiencyChart from './charts/SalesEfficiencyChart.vue';
 import PipelineHealthChart from './charts/PipelineHealthChart.vue';
-import TotalRevenueChart from './charts/TotalRevenueChart.vue';
 import HotelStatusPieChart from './charts/HotelStatusPieChart.vue';
 import CMPayDashboard from './CMPayDashboard.vue';
 import HotelGruDashboard from './HotelGruDashboard.vue';
 import BreakdownPieChart from './charts/BreakdownPieChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
+import ClientGrowthVsChurnChart from './charts/ClientGrowthVsChurnChart.vue';
 
 const store = useReportStore();
 
@@ -291,13 +291,6 @@ const breakdownData = computed(() => store.reportBreakdownData);
             <!-- Annual Performance Analysis Charts -->
             <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
-                <h3 class="text-lg font-bold text-slate-700 mb-4">Total Revenue Trend</h3>
-                <div class="h-[300px]">
-                  <TotalRevenueChart :chart-data="annualChartData" />
-                </div>
-              </section>
-              
-              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Trend: Actual vs. Target</h3>
                 <div class="h-[300px]">
                   <RevenueComparisonChart :chart-data="annualChartData" />
@@ -333,6 +326,13 @@ const breakdownData = computed(() => store.reportBreakdownData);
               </section>
               
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Client Growth vs. Churn</h3>
+                <div class="h-[300px]">
+                  <ClientGrowthVsChurnChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Pipeline Health (Trial & Pending)</h3>
                 <div class="h-[300px]">
                   <PipelineHealthChart :chart-data="annualChartData" />
@@ -345,7 +345,7 @@ const breakdownData = computed(() => store.reportBreakdownData);
                   <AcquisitionMixChart :chart-data="annualChartData" />
                 </div>
               </section>
-              
+
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
                 <CMPayDashboard :chart-data="annualChartData" />
