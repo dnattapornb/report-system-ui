@@ -34,6 +34,7 @@ const acquisitionChartData = computed(() => {
 const chartOptions: ChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
   plugins: {
     datalabels: {
       formatter: (value: number) => value.toString(),

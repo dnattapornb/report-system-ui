@@ -51,6 +51,7 @@ const healthTrendChartData = computed(() => {
 const chartOptions: ChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
+  interaction: { mode: 'index', intersect: false },
   plugins: {
     datalabels: {
       display: false, // Hide datalabels for line chart by default
