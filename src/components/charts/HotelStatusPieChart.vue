@@ -52,9 +52,19 @@ const chartOptions: ChartOptions = {
       color: '#fff',
       font: { weight: 'bold', size: 12 },
       formatter: (value, ctx) => {
-        const sum = ctx.chart.data.datasets[0].data.reduce((a: any, b: any) => a + b, 0);
-        const percentage = ((value * 100) / sum).toFixed(1) + '%';
-        return value > 0 ? percentage : '';
+        const datasets = ctx.chart.data.datasets;
+        // Safety check
+        if (datasets.indexOf(ctx.dataset) === -1) return '';
+        
+        const dataArr = datasets[0].data;
+        const sum = dataArr.reduce((a, b) => Number(a) + Number(b), 0);
+        const percentageValue = (value * 100) / sum;
+        
+        if (percentageValue < 5) {
+          return '';
+        }
+        
+        return percentageValue.toFixed(1) + '%';
       },
     },
   },
