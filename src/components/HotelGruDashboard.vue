@@ -63,8 +63,9 @@ const periodTotals = computed(() => {
           <GaugeChart
             :value="periodTotals.totalCommission"
             :max="periodTotals.totalCommissionTarget"
-            label="Commission"
             :show-min-max-labels="true"
+            label="Commission"
+            color="#ef4444"
           />
         </div>
       </div>

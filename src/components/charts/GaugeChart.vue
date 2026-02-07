@@ -14,12 +14,15 @@ import { formatCurrency } from '../../utils/formatters';
 
 ChartJS.register(Title, Tooltip, Legend, ArcElement, ChartDataLabels);
 
-const props = defineProps<{
+const props = withDefaults(defineProps<{
   value: number;
   max: number;
   label: string;
   showMinMaxLabels?: boolean;
-}>();
+  color?: string;
+}>(), {
+  color: '#3b82f6', // default color to blue
+});
 
 const percentage = computed(() => {
   if (!props.value || !props.max || props.max === 0) return 0;
@@ -33,8 +36,8 @@ const chartData = computed(() => {
       {
         data: [value, 100 - value],
         backgroundColor: [
-          '#3b82f6', // Blue for the value
-          '#e5e7eb', // Gray for the remainder
+          props.color,
+          '#e5e7eb',
         ],
         borderWidth: 0,
         circumference: 180,

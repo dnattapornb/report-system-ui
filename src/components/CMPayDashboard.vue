@@ -65,21 +65,22 @@ const periodTotals = computed(() => {
       <!-- Gauges -->
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white p-4 border border-slate-100 text-center">
-          <h4 class="text-xs font-bold mb-2">Charge vs Target</h4>
-          <GaugeChart
-            :value="periodTotals.totalCharge"
-            :max="periodTotals.totalChargeTarget"
-            label="Charge"
-            :show-min-max-labels="true"
-          />
-        </div>
-        <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Profit vs Target</h4>
           <GaugeChart
             :value="periodTotals.totalProfit"
             :max="periodTotals.totalProfitTarget"
-            label="Profit"
             :show-min-max-labels="true"
+            label="Profit"
+          />
+        </div>
+        <div class="bg-white p-4 border border-slate-100 text-center">
+          <h4 class="text-xs font-bold mb-2">Charge vs Target</h4>
+          <GaugeChart
+            :value="periodTotals.totalCharge"
+            :max="periodTotals.totalChargeTarget"
+            :show-min-max-labels="true"
+            label="Charge"
+            color="#7f22fe"
           />
         </div>
       </div>
@@ -96,7 +97,7 @@ const periodTotals = computed(() => {
           <CMPayComparisonChart :chart-data="chartData" :metric-type="'profit'" />
         </div>
       </div>
-      
+    
     </div>
   </div>
 </template>
