@@ -190,7 +190,7 @@ onMounted(async () => {
 <template>
   <div class="flex flex-col w-full gap-4 overflow-hidden">
     <!-- Asia map -->
-    <div class="bg-white rounded-2xl border border-slate-100 relative flex-[2] min-h-[300px] overflow-hidden">
+    <div class="bg-white rounded-2xl border border-slate-100 relative flex-[2] min-h-[400px] overflow-hidden">
       <div v-if="!isMapLoaded" class="absolute inset-0 flex items-center justify-center z-10">
         <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
       </div>

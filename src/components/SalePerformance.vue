@@ -366,7 +366,7 @@ const isCountMetric = (key: string | number) => {
           </div>
           
           <!-- Breakdown Charts Section -->
-          <div v-if="breakdownData">
+          <div v-if="store.hasBreakdownData">
             <!-- Breakdown Charts Header Section -->
             <div class="border-b border-slate-100 pb-4 mt-8 mb-8">
               <h2 class="text-1xl font-bold text-slate-800 text-left">Market Share & Distribution</h2>
@@ -395,7 +395,7 @@ const isCountMetric = (key: string | number) => {
           </div>
           
           <!-- Hotel Distribution Charts Section -->
-          <div v-if="breakdownData" class="grid grid-cols-2 gap-6 mb-10">
+          <div v-if="store.hasMapData" class="grid grid-cols-1 xl:grid-cols-2 gap-6 mb-10">
             <!-- Thailand Charts Section -->
             <div>
               <!-- Thailand Charts Header Section -->

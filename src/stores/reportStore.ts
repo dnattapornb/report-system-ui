@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import apiClient from '../services/api';
 import { socket } from '../services/socket';
-import type { ReportMetricsData, DashboardData } from '../types/report';
+import type { ReportMetricsData, DashboardData, DistributionItem } from '../types/report';
 
 export interface OnlineUser {
   id: string;
@@ -67,6 +67,35 @@ export const useReportStore = defineStore('report', () => {
   }
 
   // --- Getters ---
+  const hasBreakdownData = computed(() => {
+    const data = reportBreakdownData.value;
+
+    // null/undefined
+    if (!data) return false;
+
+    // empty Object ({})
+    if (Object.keys(data).length === 0) return false;
+
+    // valid redis key packageDistribution (Optional)
+    const requiredKeys = ['packageDistribution', 'paymentConditionDistribution', 'revenueModelDistribution', 'salesChannelDistribution', 'closedDealDistribution'];
+    const hasContent = requiredKeys.some(key => {
+      const subData = (data as any)[key];
+      return subData && Object.keys(subData).length > 0;
+    });
+
+    return hasContent;
+  });
+
+  const hasMapData = computed(() => {
+    const data = reportBreakdownData.value;
+    if (!data) return false;
+
+    const hasThai = data.thailandProvinceDistribution && Object.keys(data.thailandProvinceDistribution).length > 0;
+    const hasInter = data.internationalCountryDistribution && Object.keys(data.internationalCountryDistribution).length > 0;
+
+    return hasThai || hasInter;
+  });
+
   const allAvailableYears = computed(() => {
     if (!reportMetricsData.value) return [];
     return Object.keys(reportMetricsData.value).sort((a, b) => parseInt(a) - parseInt(b));
@@ -287,6 +316,8 @@ export const useReportStore = defineStore('report', () => {
     onlineUsersCount,
     selectedYearMonth,
     fetchAndConnect,
+    hasBreakdownData,
+    hasMapData,
     allAvailableYears,
     annualChartData,
     annualComparison,
