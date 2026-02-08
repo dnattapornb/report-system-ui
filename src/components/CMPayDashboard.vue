@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import type { ReportMetricItem } from '../types/report';
 import { formatCurrency } from '../utils/formatters';
 import GaugeChart from './charts/GaugeChart.vue';
+import GaugeChartECharts from './charts/GaugeChartECharts.vue';
 import CMPayComboChart from './charts/CMPayComboChart.vue';
 import CMPayComparisonChart from './charts/CMPayComparisonChart.vue';
 
@@ -66,7 +67,7 @@ const periodTotals = computed(() => {
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Profit vs Target</h4>
-          <GaugeChart
+          <GaugeChartECharts
             :value="periodTotals.totalProfit"
             :max="periodTotals.totalProfitTarget"
             :show-min-max-labels="true"
@@ -75,7 +76,7 @@ const periodTotals = computed(() => {
         </div>
         <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Charge vs Target</h4>
-          <GaugeChart
+          <GaugeChartECharts
             :value="periodTotals.totalCharge"
             :max="periodTotals.totalChargeTarget"
             :show-min-max-labels="true"

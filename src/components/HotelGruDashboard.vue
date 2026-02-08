@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import type { ReportMetricItem } from '../types/report';
 import { formatCurrency } from '../utils/formatters';
 import GaugeChart from './charts/GaugeChart.vue';
+import GaugeChartECharts from './charts/GaugeChartECharts.vue';
 import HotelGruComboChart from './charts/HotelGruComboChart.vue';
 import HotelGruComparisonChart from './charts/HotelGruComparisonChart.vue';
 
@@ -60,7 +61,7 @@ const periodTotals = computed(() => {
       <div class="grid grid-cols-2">
         <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Commission vs Target</h4>
-          <GaugeChart
+          <GaugeChartECharts
             :value="periodTotals.totalCommission"
             :max="periodTotals.totalCommissionTarget"
             :show-min-max-labels="true"
