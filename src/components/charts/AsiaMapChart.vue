@@ -35,8 +35,8 @@ const countryNameMapping: Record<string, string> = {
   'Vietnam': 'Vietnam',
   'Cambodia': 'Cambodia',
   'Japan': 'Japan',
-  'Hong Kong': 'Hong Kong', // หมายเหตุ: Hong Kong ใน World Map มักไม่มีพื้นที่แยก (รวมกับ China)
-  // 'Hong Kong': 'China'
+  'Hong Kong': 'Hong Kong',
+  // 'Hong Kong': 'China', // Uncomment ถ้าต้องการรวมยอดเข้าจีน
   'China': 'China',
   'Taiwan': 'Taiwan',
   'Myanmar': 'Myanmar',
@@ -98,8 +98,6 @@ const validateMapData = () => {
       console.warn(`❌ Mismatch Found: "${item.name}" -> Not found in World Map GeoJSON.`);
       console.warn(`   👉 Action: Please add "${item.name}" to 'countryNameMapping' with the correct map name.`);
       hasError = true;
-    } else {
-      // console.log(`✅ Matched: ${item.name}`);
     }
   });
   
@@ -138,7 +136,7 @@ const chartOption = computed(() => {
       text: ['High', 'Low'],
       calculable: true,
       inRange: {
-        color: ['#bfdbfe', '#60a5fa', '#1d4ed8'],
+        color: ['#ffedd5', '#fb923c', '#c2410c'],
       },
     },
     geo: {
@@ -212,7 +210,7 @@ onMounted(async () => {
           class="flex items-center justify-between hover:bg-slate-50 transition-all pr-4"
         >
           <div class="flex items-center gap-3">
-            <div class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white bg-blue-500 shadow-sm">
+            <div class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white bg-orange-400 shadow-sm">
               {{ index + 1 }}
             </div>
             <div class="font-bold text-slate-700 text-sm">{{ item.name }}</div>
