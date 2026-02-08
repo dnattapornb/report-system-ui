@@ -21,6 +21,7 @@ import BreakdownPieChart from './charts/BreakdownPieChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 import ClientGrowthVsChurnChart from './charts/ClientGrowthVsChurnChart.vue';
 import ThailandMapChart from './charts/ThailandMapChart.vue';
+import AsiaMapChart from './charts/AsiaMapChart.vue';
 
 const store = useReportStore();
 
@@ -394,7 +395,7 @@ const isCountMetric = (key: string | number) => {
           </div>
           
           <!-- Hotel Distribution Charts Section -->
-          <div class="grid grid-cols-2">
+          <div class="grid grid-cols-2 gap-6 mb-10">
             <!-- Thailand Charts Section -->
             <div>
               <!-- Thailand Charts Header Section -->
@@ -404,9 +405,23 @@ const isCountMetric = (key: string | number) => {
                   Overview on domestic
                 </p>
               </div>
+              <!-- Thailand Charts Body Section -->
               <div class="flex flex-col bg-white h-auto lg:h-[750px]">
-                <!-- :distribution-data="breakdownData.provinceDistribution -->
-                <ThailandMapChart :distribution-data="breakdownData.provinceDistribution" />
+                <ThailandMapChart :distribution-data="breakdownData.thailandProvinceDistribution" />
+              </div>
+            </div>
+            <!-- Asia Charts Section -->
+            <div>
+              <!-- Asia Charts Header Section -->
+              <div class="border-b border-slate-100 pb-4 mt-8 mb-8">
+                <h2 class="text-1xl font-bold text-slate-800 text-left">Hotel Share & Distribution</h2>
+                <p class="text-sm text-slate-500 mt-1 text-left">
+                  Overview on international
+                </p>
+              </div>
+              <!-- Asia Charts Body Section -->
+              <div class="flex flex-row bg-white h-auto lg:h-[750px]">
+                <AsiaMapChart :distribution-data="breakdownData.internationalCountryDistribution" :thailand-province-distribution="breakdownData.thailandProvinceDistribution" />
               </div>
             </div>
           </div>

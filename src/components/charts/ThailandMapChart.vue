@@ -18,10 +18,6 @@ const isMapLoaded = ref(false);
 const mapData = ref<any[]>([]);
 const geoJsonFeatures = ref<any[]>([]);
 
-// const provinceDataRaw = computed(() => {
-//   return props.distributionData || {};
-// });
-
 const p: Record<string, number> = {
   // Southern
   'Krabi': 131,
@@ -113,6 +109,9 @@ const p: Record<string, number> = {
   'Ratchaburi': 4,
 };
 const provinceDataRaw = ref<Record<string, number>>(p);
+// const provinceDataRaw = computed(() => {
+//   return props.distributionData || {};
+// });
 
 const getGradientColor = (hex: string, intensity: number) => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -296,7 +295,7 @@ const chartOption = computed(() => {
         emphasis: {
           label: { show: false },
           itemStyle: {
-            areaColor: '#334155', // สีตอน Hover พื้นที่ (เทาเข้ม)
+            areaColor: '#334155',
             shadowBlur: 10,
             shadowColor: 'rgba(0, 0, 0, 0.2)',
           },
@@ -355,10 +354,10 @@ onMounted(async () => {
     
     <!-- Thailand Details -->
     <div class="lg:col-span-6 flex flex-col h-full overflow-hidden">
-      <!-- Thailand Region -->
+      <!-- Thailand All Region -->
       <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 mb-4">
         <p class="text-md text-left font-bold text-slate-500 uppercase tracking-widest mb-4">Region</p>
-        <div class=" mb-4 grid grid-cols-2 gap-2">
+        <div class="mb-4 grid grid-cols-2 gap-2">
           <div v-for="item in sortedRegions" :key="item.name" class="flex items-center justify-between text-xs">
             <div class="flex items-center gap-2">
               <div class="w-3 h-3 rounded-full shadow-sm" :style="{ backgroundColor: item.color }"></div>
@@ -371,7 +370,7 @@ onMounted(async () => {
         </div>
       </div>
       
-      <!-- Thailand Provinces -->
+      <!-- Thailand Top 10 Provinces -->
       <div class="bg-white flex-1 p-6 rounded-2xl shadow-xs border border-slate-100 overflow-y-auto custom-scrollbar">
         <p class="text-md text-left font-bold text-slate-500 uppercase tracking-widest mb-4">Top 10 Provinces</p>
         <div class="pr-2 space-y-3">
