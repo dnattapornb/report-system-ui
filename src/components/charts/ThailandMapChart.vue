@@ -18,100 +18,48 @@ const isMapLoaded = ref(false);
 const mapData = ref<any[]>([]);
 const geoJsonFeatures = ref<any[]>([]);
 
-const p: Record<string, number> = {
-  // Southern
-  'Krabi': 131,
-  'Phuket': 240,
-  'Chumphon': 3,
-  'Trang': 6,
-  'Nakhon Si Thammarat': 12,
-  'Narathiwat': 0,
-  'Pattani': 1,
-  'Phangnga': 36,      // แก้จาก Phang-Nga
-  'Phatthalung': 1,    // แก้จาก Phattalung
-  'Yala': 2,
-  'Ranong': 4,
-  'Songkhla': 18,
-  'Satun': 22,
-  'Surat Thani': 87,
-  
-  // Central
-  'Bangkok': 202,
-  'Kamphaeng Phet': 0,
-  'Chai Nat': 0,
-  'Nakhon Nayok': 2,
-  'Nakhon Pathom': 3,
-  'Nakhon Sawan': 2,
-  'Nonthaburi': 6,
-  'Pathum Thani': 7,          // แก้จาก Pathumthani
-  'Phra Nakhon Si Ayutthaya': 3,
-  'Phichit': 0,
-  'Phitsanulok': 6,
-  'Phetchabun': 5,            // แก้จาก Phetchaboon
-  'Lop Buri': 0,              // แก้จาก Lopburi
-  'Samut Prakan': 6,
-  'Samut Songkhram': 5,
-  'Samut Sakhon': 0,
-  'Sing Buri': 0,
-  'Sukhothai': 3,
-  'Suphan Buri': 5,
-  'Saraburi': 1,
-  'Ang Thong': 0,
-  'Uthai Thani': 0,
-  
-  // Northern
-  'Chiang Mai': 131,
-  'Chiang Rai': 38,
-  'Lampang': 1,
-  'Lamphun': 1,
-  'Mae Hong Son': 8,
-  'Nan': 7,
-  'Phayao': 0,
-  'Phrae': 4,
-  'Uttaradit': 0,
-  
-  // Northeastern
-  'Kalasin': 0,
-  'Khon Kaen': 5,
-  'Chaiyaphum': 0,
-  'Nakhon Phanom': 2,
-  'Nakhon Ratchasima': 28,
-  'Bueng Kan': 0,
-  'Buriram': 4,
-  'Maha Sarakham': 0,
-  'Mukdahan': 1,       // แก้จาก Mukdahern
-  'Yasothon': 0,
-  'Roi Et': 2,
-  'Loei': 7,
-  'Sakon Nakhon': 0,
-  'Surin': 0,
-  'Si Sa Ket': 0,      // แก้จาก Sisaket
-  'Nong Khai': 0,
-  'Nong Bua Lamphu': 0,
-  'Udon Thani': 4,
-  'Ubon Ratchathani': 4,
-  'Amnat Charoen': 0,
-  
-  // Eastern
-  'Chanthaburi': 4,
-  'Chachoengsao': 5,
-  'Chon Buri': 69,     // แก้จาก Chonburi
-  'Trat': 14,
-  'Prachin Buri': 6,   // แก้จาก Prachinburi
-  'Rayong': 12,
-  'Sa Kaeo': 0,
-  
-  // Western
-  'Kanchanaburi': 27,
-  'Tak': 2,
-  'Prachuap Khiri Khan': 32,
-  'Phetchaburi': 19,   // แก้จาก Petchaburi
-  'Ratchaburi': 4,
+// Key: Name Google Sheet(Redis) -> Value: ชื่อใน GeoJSON (pro_en)
+const provinceNameMapping: Record<string, string> = {
+  'Phang-Nga': 'Phangnga',
+  'Phattalung': 'Phatthalung',
+  'Pathumthani': 'Pathum Thani',
+  'Prachinburi': 'Prachin Buri',
+  'Chonburi': 'Chon Buri',
+  'Sisaket': 'Si Sa Ket',
+  'Nongbua Lamphu': 'Nong Bua Lamphu',
+  'Buriram': 'Buri Ram',
+  'Lopburi': 'Lop Buri',
+  'Suphanburi': 'Suphan Buri',
+  'Saraburi': 'Sara Buri',
+  'Singburi': 'Sing Buri',
+  'Kanchanaburi': 'Kanchanaburi',
+  'Nakhon Ratchasima': 'Nakhon Ratchasima', // Korat
+  'Phetchaboon': 'Phetchabun',
+  'Mukdahern': 'Mukdahan',
+  'Petchaburi': 'Phetchaburi',
+};
+
+const normalizeName = (name: string) => {
+  return name.toLowerCase().replace(/\s+/g, '').replace('province', '').replace(/-/g, '').trim();
 };
 
 const provinceDataRaw = computed(() => {
-  return props.distributionData || {};
+  const sourceData = props.distributionData || {};
+  const mappedData: Record<string, number> = {};
+  
+  Object.entries(sourceData).forEach(([key, val]) => {
+    const mappedKey = provinceNameMapping[key] || key;
+    
+    if (mappedData[mappedKey]) {
+      mappedData[mappedKey] += val;
+    } else {
+      mappedData[mappedKey] = val;
+    }
+  });
+  
+  return mappedData;
 });
+
 
 const getGradientColor = (hex: string, intensity: number) => {
   const r = parseInt(hex.slice(1, 3), 16);
@@ -124,10 +72,6 @@ const getGradientColor = (hex: string, intensity: number) => {
   const newG = Math.round(g * factor + 255 * (1 - factor));
   const newB = Math.round(b * factor + 255 * (1 - factor));
   return `#${toHex(newR)}${toHex(newG)}${toHex(newB)}`;
-};
-
-const normalizeName = (name: string) => {
-  return name.toLowerCase().replace(/\s+/g, '').replace('province', '').trim();
 };
 
 const regionColorMap: Record<string, string> = {
@@ -183,6 +127,7 @@ const processData = (features: any[]) => {
   const data: any[] = [];
   const normalizedMapping: Record<string, string> = {};
   const normalizedDataRaw: Record<string, number> = {};
+  const validGeoNames = new Set<string>();
   
   Object.keys(provinceToRegion.value).forEach(key => {
     normalizedMapping[normalizeName(key)] = provinceToRegion.value[key];
@@ -191,6 +136,27 @@ const processData = (features: any[]) => {
   Object.keys(provinceDataRaw.value).forEach(key => {
     normalizedDataRaw[normalizeName(key)] = provinceDataRaw.value[key];
   });
+  
+  features.forEach((f: any) => {
+    const name = f.properties.pro_en || f.properties.name;
+    validGeoNames.add(normalizeName(name));
+  });
+  
+  if (Object.keys(provinceDataRaw.value).length > 0) {
+    console.groupCollapsed('🗺️ Thailand Map Data Check');
+    let hasError = false;
+    Object.keys(provinceDataRaw.value).forEach(inputName => {
+      const normalizedInput = normalizeName(inputName);
+      if (!validGeoNames.has(normalizedInput)) {
+        console.warn(`❌ Mismatch Found: "${inputName}" (Normalized: ${normalizedInput}) -> Not found in GeoJSON`);
+        hasError = true;
+      } else {
+        // console.log(`✅ Matched: ${inputName}`);
+      }
+    });
+    if (!hasError) console.log('✅ All province data matched successfully!');
+    console.groupEnd();
+  }
   
   const regionMaxValues: Record<string, number> = {};
   Object.keys(normalizedDataRaw).forEach((provKey) => {
@@ -201,6 +167,7 @@ const processData = (features: any[]) => {
     }
   });
   
+  // สร้าง Data สำหรับ ECharts
   features.forEach((feature: any) => {
     const props = feature.properties;
     const mapName = props.name || props.pro_en || 'Unknown';
@@ -308,7 +275,7 @@ const chartOption = computed(() => {
 
 watch(() => props.distributionData, (newData) => {
   if (geoJsonFeatures.value.length > 0) {
-    console.log('Data updated, reprocessing map...');
+    // console.log('Data updated, reprocessing map...');
     processData(geoJsonFeatures.value);
   }
 }, { deep: true });
