@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useReportStore } from '../stores/reportStore';
 import { VueDatePicker } from '@vuepic/vue-datepicker';
-import { formatCurrency, formatPercentage } from '../utils/formatters';
+import { formatCurrency, formatNumber } from '../utils/formatters';
 import { useBreakpoints } from '@vueuse/core';
 import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -20,6 +20,7 @@ import HotelGruDashboard from './HotelGruDashboard.vue';
 import BreakdownPieChart from './charts/BreakdownPieChart.vue';
 import OnlineUsersBadge from './OnlineUsersBadge.vue';
 import ClientGrowthVsChurnChart from './charts/ClientGrowthVsChurnChart.vue';
+import ThailandMapChart from './charts/ThailandMapChart.vue';
 
 const store = useReportStore();
 
@@ -132,7 +133,7 @@ const isCountMetric = (key: string | number) => {
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-6 gap-6 mb-10">
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Live Hotels</p>
-                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ monthlyDeepDiveKpis.hotelActual }}</h4>
+                <h4 class="text-2xl font-black text-emerald-600 mt-2">{{ formatNumber(monthlyDeepDiveKpis.hotelActual) }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
@@ -350,7 +351,7 @@ const isCountMetric = (key: string | number) => {
                   <AcquisitionMixChart :chart-data="annualChartData" />
                 </div>
               </section>
-
+              
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
                 <CMPayDashboard :chart-data="annualChartData" />
@@ -388,6 +389,24 @@ const isCountMetric = (key: string | number) => {
               </div>
               <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
                 <BreakdownPieChart title="Closed By" :distribution-data="breakdownData.closedDealDistribution" />
+              </div>
+            </div>
+          </div>
+          
+          <!-- Hotel Distribution Charts Section -->
+          <div class="grid grid-cols-2">
+            <!-- Thailand Charts Section -->
+            <div>
+              <!-- Thailand Charts Header Section -->
+              <div class="border-b border-slate-100 pb-4 mt-8 mb-8">
+                <h2 class="text-1xl font-bold text-slate-800 text-left">Hotel Share & Distribution</h2>
+                <p class="text-sm text-slate-500 mt-1 text-left">
+                  Overview on domestic
+                </p>
+              </div>
+              <div class="flex flex-col bg-white h-auto lg:h-[750px]">
+                <!-- :distribution-data="breakdownData.provinceDistribution -->
+                <ThailandMapChart :distribution-data="breakdownData.provinceDistribution" />
               </div>
             </div>
           </div>

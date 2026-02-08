@@ -13,6 +13,14 @@ export const formatCurrency = (val: number, compact = false) => {
   }).format(val);
 };
 
+export const formatNumber = (val: number, decimals = 0) => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'decimal',
+    minimumFractionDigits: decimals,
+    maximumFractionDigits: decimals,
+  }).format(val);
+};
+
 export const formatPercentage = (val: number) => {
   return new Intl.NumberFormat('en-US', {
     style: 'percent',
