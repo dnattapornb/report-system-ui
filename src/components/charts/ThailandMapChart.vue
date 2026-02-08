@@ -108,10 +108,10 @@ const p: Record<string, number> = {
   'Phetchaburi': 19,   // แก้จาก Petchaburi
   'Ratchaburi': 4,
 };
-const provinceDataRaw = ref<Record<string, number>>(p);
-// const provinceDataRaw = computed(() => {
-//   return props.distributionData || {};
-// });
+
+const provinceDataRaw = computed(() => {
+  return props.distributionData || {};
+});
 
 const getGradientColor = (hex: string, intensity: number) => {
   const r = parseInt(hex.slice(1, 3), 16);

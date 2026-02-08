@@ -17,31 +17,41 @@ use([
 ]);
 
 const props = defineProps<{
-  thailandDistribution?: Record<string, number>;
+  distributionData?: Record<string, number>;
+  thailandProvinceDistribution?: Record<string, number>;
 }>();
 
 const isMapLoaded = ref(false);
 
-const internationalDataRaw: Record<string, number> = {
-  'Korea': 118,
-  'Lao PDR': 1,
-  'Hong Kong': 12,
-  'Cambodia': 1,
-  'Japan': 1,
-  'Vietnam': 16,
-  'Thailand': 1200,
+const countryNameMapping: Record<string, string> = {
+  'South Korea': 'Korea',
+  'Korea': 'Korea',
+  'Laos': 'Lao PDR',
+  'Lao': 'Lao PDR',
+  'Lao PDR': 'Lao PDR',
+  'Viet Nam': 'Vietnam',
+  'Vietnam': 'Vietnam',
+  'Cambodia': 'Cambodia',
+  'Japan': 'Japan',
+  'Hong Kong': 'Hong Kong',
+  // เพิ่มประเทศอื่นได้ที่นี่
 };
 
 const thailandTotal = computed(() => {
-  const data = props.thailandDistribution || {};
+  const data = props.thailandProvinceDistribution || {};
   return Object.values(data).reduce((sum, val) => sum + val, 0);
 });
 
-const mapData = computed(() => {
-  const data = [];
+const processedMapData = computed(() => {
+  const data: { name: string; value: number }[] = [];
+  const rawInter = props.distributionData || {};
   
-  Object.entries(internationalDataRaw).forEach(([name, value]) => {
-    data.push({ name: name, value: value });
+  Object.entries(rawInter).forEach(([dbName, val]) => {
+    if (dbName === 'Thailand') return;
+    
+    const mapName = countryNameMapping[dbName] || dbName;
+    
+    data.push({ name: mapName, value: val });
   });
   
   if (thailandTotal.value > 0) {
@@ -49,10 +59,6 @@ const mapData = computed(() => {
   }
   
   return data;
-});
-
-const processedMapData = computed(() => {
-  return mapData.value;
 });
 
 const sortedCountries = computed(() => {
@@ -72,10 +78,10 @@ const chartOption = computed(() => {
         const { name, value } = params.data;
         return `
           <div class="flex items-center gap-2 mb-1">
-            <span class="font-bold text-white text-sm">${name}</span>
+            <span class="font-bold text-white text-sm">${ name }</span>
           </div>
           <div>
-            <span class="font-black text-xl text-white">${formatNumber(value)}</span>
+            <span class="font-black text-xl text-white">${ formatNumber(value || 0) }</span>
             <span class="text-xs font-normal text-gray-400 ml-1">Hotels</span>
           </div>
         `;

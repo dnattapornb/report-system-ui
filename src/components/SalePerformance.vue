@@ -395,7 +395,7 @@ const isCountMetric = (key: string | number) => {
           </div>
           
           <!-- Hotel Distribution Charts Section -->
-          <div class="grid grid-cols-2 gap-6 mb-10">
+          <div v-if="breakdownData" class="grid grid-cols-2 gap-6 mb-10">
             <!-- Thailand Charts Section -->
             <div>
               <!-- Thailand Charts Header Section -->
