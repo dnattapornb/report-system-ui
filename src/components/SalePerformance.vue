@@ -376,19 +376,19 @@ const isCountMetric = (key: string | number) => {
             </div>
             
             <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-5 gap-6 mb-10">
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 h-[300px]">
                 <BreakdownPieChart title="Package" :distribution-data="breakdownData.packageDistribution" />
               </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 h-[300px]">
                 <BreakdownPieChart title="Payment" :distribution-data="breakdownData.paymentConditionDistribution" />
               </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 h-[300px]">
                 <BreakdownPieChart title="Revenue Model" :distribution-data="breakdownData.revenueModelDistribution" />
               </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 h-[300px]">
                 <BreakdownPieChart title="Sales Channel" :distribution-data="breakdownData.salesChannelDistribution" />
               </div>
-              <div class="bg-slate-50 p-4 rounded-2xl border border-slate-100 h-[300px]">
+              <div class="bg-white p-4 rounded-2xl border border-slate-100 h-[300px]">
                 <BreakdownPieChart title="Closed By" :distribution-data="breakdownData.closedDealDistribution" />
               </div>
             </div>

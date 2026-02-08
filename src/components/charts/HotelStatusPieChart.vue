@@ -68,6 +68,9 @@ const chartOptions: ChartOptions = {
       },
     },
   },
+  layout: {
+    padding: 20,
+  },
 };
 </script>
 
