@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, watch } from 'vue';
 import { use, registerMap } from 'echarts/core';
 import { CanvasRenderer } from 'echarts/renderers';
 import { MapChart } from 'echarts/charts';
@@ -22,10 +22,12 @@ const props = defineProps<{
 }>();
 
 const isMapLoaded = ref(false);
+const geoJsonFeatures = ref<any[]>([]);
 
 const countryNameMapping: Record<string, string> = {
   'South Korea': 'Korea',
   'Korea': 'Korea',
+  'Dem. Rep. Korea': 'Dem. Rep. Korea',
   'Laos': 'Lao PDR',
   'Lao': 'Lao PDR',
   'Lao PDR': 'Lao PDR',
@@ -33,8 +35,16 @@ const countryNameMapping: Record<string, string> = {
   'Vietnam': 'Vietnam',
   'Cambodia': 'Cambodia',
   'Japan': 'Japan',
-  'Hong Kong': 'Hong Kong',
-  // เพิ่มประเทศอื่นได้ที่นี่
+  'Hong Kong': 'Hong Kong', // หมายเหตุ: Hong Kong ใน World Map มักไม่มีพื้นที่แยก (รวมกับ China)
+  // 'Hong Kong': 'China'
+  'China': 'China',
+  'Taiwan': 'Taiwan',
+  'Myanmar': 'Myanmar',
+  'Malaysia': 'Malaysia',
+  'Singapore': 'Singapore',
+  'Indonesia': 'Indonesia',
+  'Philippines': 'Philippines',
+  // เพิ่มประเทศอื่นได้ที่นี่ตาม Log แจ้งเตือน
 };
 
 const thailandTotal = computed(() => {
@@ -43,7 +53,7 @@ const thailandTotal = computed(() => {
 });
 
 const processedMapData = computed(() => {
-  const data: { name: string; value: number }[] = [];
+  const aggregatedData: Record<string, number> = {};
   const rawInter = props.distributionData || {};
   
   Object.entries(rawInter).forEach(([dbName, val]) => {
@@ -51,8 +61,17 @@ const processedMapData = computed(() => {
     
     const mapName = countryNameMapping[dbName] || dbName;
     
-    data.push({ name: mapName, value: val });
+    if (aggregatedData[mapName]) {
+      aggregatedData[mapName] += val;
+    } else {
+      aggregatedData[mapName] = val;
+    }
   });
+  
+  const data: { name: string; value: number }[] = Object.entries(aggregatedData).map(([name, val]) => ({
+    name,
+    value: val,
+  }));
   
   if (thailandTotal.value > 0) {
     data.push({ name: 'Thailand', value: thailandTotal.value });
@@ -66,6 +85,30 @@ const sortedCountries = computed(() => {
     .sort((a, b) => b.value - a.value);
 });
 
+const validateMapData = () => {
+  if (geoJsonFeatures.value.length === 0 || processedMapData.value.length === 0) return;
+  
+  const validMapNames = new Set(geoJsonFeatures.value.map((f: any) => f.properties.name));
+  
+  console.groupCollapsed('🌏 Asia Map Data Check');
+  let hasError = false;
+  
+  processedMapData.value.forEach(item => {
+    if (!validMapNames.has(item.name)) {
+      console.warn(`❌ Mismatch Found: "${item.name}" -> Not found in World Map GeoJSON.`);
+      console.warn(`   👉 Action: Please add "${item.name}" to 'countryNameMapping' with the correct map name.`);
+      hasError = true;
+    } else {
+      // console.log(`✅ Matched: ${item.name}`);
+    }
+  });
+  
+  if (!hasError) {
+    console.log('✅ All country names matched successfully!');
+  }
+  console.groupEnd();
+};
+
 const chartOption = computed(() => {
   return {
     tooltip: {
@@ -78,10 +121,10 @@ const chartOption = computed(() => {
         const { name, value } = params.data;
         return `
           <div class="flex items-center gap-2 mb-1">
-            <span class="font-bold text-white text-sm">${ name }</span>
+            <span class="font-bold text-white text-sm">${name}</span>
           </div>
           <div>
-            <span class="font-black text-xl text-white">${ formatNumber(value || 0) }</span>
+            <span class="font-black text-xl text-white">${formatNumber(value || 0)}</span>
             <span class="text-xs font-normal text-gray-400 ml-1">Hotels</span>
           </div>
         `;
@@ -125,17 +168,18 @@ const chartOption = computed(() => {
   };
 });
 
+watch([() => isMapLoaded.value, () => processedMapData.value], ([loaded]) => {
+  if (loaded) {
+    validateMapData();
+  }
+});
+
 onMounted(async () => {
   try {
     const response = await axios.get('https://raw.githubusercontent.com/apache/echarts-examples/gh-pages/public/data/asset/geo/world.json');
     const geoJson = response.data;
     
-    // console.log("Debug: Loading World Map...");
-    // geoJson.features.forEach((f: any) => {
-    //   if (['Korea', 'Lao', 'Viet', 'Thai'].some(k => f.properties.name.includes(k))) {
-    //     console.log(`Found: ${f.properties.name}`);
-    //   }
-    // });
+    geoJsonFeatures.value = geoJson.features;
     
     registerMap('world', geoJson);
     isMapLoaded.value = true;
