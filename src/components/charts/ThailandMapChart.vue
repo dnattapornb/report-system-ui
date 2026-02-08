@@ -22,6 +22,7 @@ const geoJsonFeatures = ref<any[]>([]);
 const provinceNameMapping: Record<string, string> = {
   'Phang-Nga': 'Phangnga',
   'Phattalung': 'Phatthalung',
+  'Songkha': 'Songkhla',
   'Pathumthani': 'Pathum Thani',
   'Prachinburi': 'Prachin Buri',
   'Chonburi': 'Chon Buri',
