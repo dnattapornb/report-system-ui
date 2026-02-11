@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia';
-import { ref, computed } from 'vue';
+import { ref, computed, markRaw } from 'vue';
 import { toast } from 'vue-sonner';
 import apiClient from '../services/api';
 import { socket } from '../services/socket';
 import type { ReportMetricsData, DashboardData, DistributionItem } from '../types/report';
+import ToastNotification from '../components/ToastNotification.vue';
 
 export interface OnlineUser {
   id: string;
@@ -26,62 +27,76 @@ export const useReportStore = defineStore('report', () => {
 
   // --- Actions ---
   async function fetchAndConnect() {
-    const cleanText = (val: any): string => {
-      if (val === null || val === undefined) return '';
-      return String(val).replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
-    };
-
     socket.on('notification:sheet-update', (payload: any) => {
       console.log('[Socket] Sheet Update Received:', payload);
-
       const generateToastId = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      const cleanText = (val: any) => String(val || '').replace(/[\u0000-\u001F]/g, '').trim();
 
       if (payload.event === 'auto_edit') {
         const { userEmail, sheetName, changes } = payload;
         if (!changes) return;
 
-        const isMultiCell = changes.isMultiCell;
-        let description = `User: ${cleanText(userEmail)}\nSheet: ${cleanText(sheetName)}\nRange: ${cleanText(changes.range)}`;
+        const toastId = generateToastId('edit');
+        const details = [
+          { label: 'Range', value: cleanText(changes.range), highlight: false },
+        ];
 
-        if (!isMultiCell && changes.newValue !== undefined) {
-          description += `\nValue: ${cleanText(changes.oldValue) || '-'} ➝ ${cleanText(changes.newValue)}`;
+        if (!changes.isMultiCell && changes.newValue !== undefined) {
+          details.push({
+            label: 'Value',
+            value: `${cleanText(changes.oldValue) || '-'} ➝ ${cleanText(changes.newValue)}`,
+            highlight: true, // ให้ไฮไลท์สีฟ้า
+          });
         } else {
-          description += `\n(Multiple cells updated)`;
+          details.push({ label: 'Action', value: 'Multiple cells updated', highlight: false });
         }
 
-        toast.message('Update Detected', { // ใช้ .message เพื่อ Custom เองได้เต็มที่
-          id: generateToastId('edit'),
-          description: description,
-          duration: 10000,
-          // ใส่ Icon Emoji
-          // icon: '📝',
-          // Tailwind Class:
-          // - !border-l-4: แถบสีด้านซ้ายหนา 4px
-          // - !border-blue-500: สีฟ้าสดใส
-          // - !whitespace-pre-line: รองรับ \n ให้ขึ้นบรรทัดใหม่ได้
-          class: '!border-l-4 !border-l-blue-500 !bg-white',
-        });
-      }
-      else if (payload.event === 'structure_change') {
-        const { userEmail, sheetName, changeType } = payload;
-
-        toast.message('Structure Changed', {
-          id: generateToastId('struct'),
-          description: `${cleanText(changeType)} detected in ${cleanText(sheetName)}\nBy: ${cleanText(userEmail)}`,
-          duration: 10000,
-          // icon: '⚠️',
-          // สีส้ม (Orange/Amber)
-          class: '!border-l-4 !border-l-orange-500 !bg-white',
-        });
-      }
-      else if (payload.event === 'manual_full_sync') {
-        toast.message('Sync Started', {
-          id: generateToastId('sync'),
-          description: `Full sync requested by\n${cleanText(payload.triggeredBy)}`,
+        toast.custom(markRaw(ToastNotification), {
+          id: toastId,
+          componentProps: {
+            toastId: toastId,
+            type: 'info',
+            title: 'Data Updated',
+            user: cleanText(userEmail),
+            sheet: cleanText(sheetName),
+            details: details,
+          },
           duration: 5000,
-          // icon: '🚀',
-          // สีเขียว (Emerald)
-          class: '!border-l-4 !border-l-emerald-500 !bg-white',
+        });
+      } else if (payload.event === 'structure_change') {
+        const { userEmail, sheetName, changeType } = payload;
+        const toastId = generateToastId('struct');
+
+        toast.custom(markRaw(ToastNotification), {
+          id: toastId,
+          componentProps: {
+            toastId: toastId,
+            type: 'warning',
+            title: 'Structure Changed',
+            user: cleanText(userEmail),
+            sheet: cleanText(sheetName),
+            details: [
+              { label: 'Action', value: cleanText(changeType), highlight: true },
+            ],
+          },
+          duration: 5000,
+        });
+      } else if (payload.event === 'manual_full_sync') {
+        const toastId = generateToastId('sync');
+
+        toast.custom(markRaw(ToastNotification), {
+          id: toastId,
+          componentProps: {
+            toastId: toastId,
+            type: 'success',
+            title: 'Sync Started',
+            user: cleanText(payload.triggeredBy),
+            sheet: 'All Sheets',
+            details: [
+              { label: 'Status', value: 'Full Sync Request', highlight: true },
+            ],
+          },
+          duration: 5000,
         });
       }
     });
