@@ -182,7 +182,7 @@ const isCountMetric = (key: string | number) => {
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Gru Active Hotels</p>
-                <h4 class="text-2xl font-black text-sky-600 mt-2">{{ monthlyDeepDiveKpis.hotelgruHotelCount }}</h4>
+                <h4 class="text-2xl font-black text-sky-600 mt-2">{{ monthlyDeepDiveKpis.hotelgruHotelActual }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">

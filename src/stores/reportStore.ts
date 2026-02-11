@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
+import { toast } from 'vue-sonner';
 import apiClient from '../services/api';
 import { socket } from '../services/socket';
 import type { ReportMetricsData, DashboardData, DistributionItem } from '../types/report';
@@ -25,6 +26,66 @@ export const useReportStore = defineStore('report', () => {
 
   // --- Actions ---
   async function fetchAndConnect() {
+    const cleanText = (val: any): string => {
+      if (val === null || val === undefined) return '';
+      return String(val).replace(/[\u0000-\u001F\u007F-\u009F]/g, "").trim();
+    };
+
+    socket.on('notification:sheet-update', (payload: any) => {
+      console.log('[Socket] Sheet Update Received:', payload);
+
+      const generateToastId = (prefix: string) => `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+      if (payload.event === 'auto_edit') {
+        const { userEmail, sheetName, changes } = payload;
+        if (!changes) return;
+
+        const isMultiCell = changes.isMultiCell;
+        let description = `User: ${cleanText(userEmail)}\nSheet: ${cleanText(sheetName)}\nRange: ${cleanText(changes.range)}`;
+
+        if (!isMultiCell && changes.newValue !== undefined) {
+          description += `\nValue: ${cleanText(changes.oldValue) || '-'} ➝ ${cleanText(changes.newValue)}`;
+        } else {
+          description += `\n(Multiple cells updated)`;
+        }
+
+        toast.message('Update Detected', { // ใช้ .message เพื่อ Custom เองได้เต็มที่
+          id: generateToastId('edit'),
+          description: description,
+          duration: 10000,
+          // ใส่ Icon Emoji
+          // icon: '📝',
+          // Tailwind Class:
+          // - !border-l-4: แถบสีด้านซ้ายหนา 4px
+          // - !border-blue-500: สีฟ้าสดใส
+          // - !whitespace-pre-line: รองรับ \n ให้ขึ้นบรรทัดใหม่ได้
+          class: '!border-l-4 !border-l-blue-500 !bg-white',
+        });
+      }
+      else if (payload.event === 'structure_change') {
+        const { userEmail, sheetName, changeType } = payload;
+
+        toast.message('Structure Changed', {
+          id: generateToastId('struct'),
+          description: `${cleanText(changeType)} detected in ${cleanText(sheetName)}\nBy: ${cleanText(userEmail)}`,
+          duration: 10000,
+          // icon: '⚠️',
+          // สีส้ม (Orange/Amber)
+          class: '!border-l-4 !border-l-orange-500 !bg-white',
+        });
+      }
+      else if (payload.event === 'manual_full_sync') {
+        toast.message('Sync Started', {
+          id: generateToastId('sync'),
+          description: `Full sync requested by\n${cleanText(payload.triggeredBy)}`,
+          duration: 5000,
+          // icon: '🚀',
+          // สีเขียว (Emerald)
+          class: '!border-l-4 !border-l-emerald-500 !bg-white',
+        });
+      }
+    });
+
     socket.on('update:saas-metrics', (newData: DashboardData) => {
       console.log('[Synced] Real-time Report updated via WebSocket');
       dashboardData.value = newData;
@@ -304,7 +365,7 @@ export const useReportStore = defineStore('report', () => {
       cmpayActiveUserCount: data.cmpayActiveUserCount,
       hotelgruCommissionTarget: data.hotelgruCommissionTarget,
       hotelgruCommissionActual: data.hotelgruCommissionActual,
-      hotelgruHotelCount: data.hotelgruHotelCount,
+      hotelgruHotelActual: data.hotelgruHotelActual,
     };
   });
 

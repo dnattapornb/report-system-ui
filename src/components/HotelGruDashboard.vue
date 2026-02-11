@@ -21,7 +21,7 @@ const periodTotals = computed(() => {
     };
   }
   
-  const lastMonthWithHotels = [...props.chartData].reverse().find(m => m.hotelgruHotelCount > 0);
+  const lastMonthWithHotels = [...props.chartData].reverse().find(m => m.hotelgruHotelActual > 0);
   
   const totals = props.chartData.reduce((acc, month) => {
     acc.totalCommission += month.hotelgruCommissionActual;
@@ -34,7 +34,7 @@ const periodTotals = computed(() => {
   
   return {
     ...totals,
-    totalHotels: lastMonthWithHotels ? lastMonthWithHotels.hotelgruHotelCount : 0,
+    totalHotels: lastMonthWithHotels ? lastMonthWithHotels.hotelgruHotelActual : 0,
   };
 });
 </script>

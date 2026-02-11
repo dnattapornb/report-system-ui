@@ -42,7 +42,7 @@ const chartData = computed(() => {
       {
         type: 'bar' as const,
         label: 'Active Hotels',
-        data: props.chartData.map((d) => d.hotelgruHotelCount),
+        data: props.chartData.map((d) => d.hotelgruHotelActual),
         backgroundColor: 'rgba(16, 185, 129, 0.5)', // Light Emerald
         yAxisID: 'y1',
         borderRadius: 4,
