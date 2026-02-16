@@ -6,6 +6,7 @@ import GaugeChart from './charts/GaugeChart.vue';
 import GaugeChartECharts from './charts/GaugeChartECharts.vue';
 import HotelGruComboChart from './charts/HotelGruComboChart.vue';
 import HotelGruComparisonChart from './charts/HotelGruComparisonChart.vue';
+import HotelGruActiveHotelVsChurnChart from './charts/HotelGruActiveHotelVsChurnChart.vue';
 
 const props = defineProps<{
   chartData: ReportMetricItem[];
@@ -77,7 +78,8 @@ const periodTotals = computed(() => {
       <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Trend</h3>
       <div class="grid grid-cols-2 gap-2">
         <div class="h-[300px]">
-          <HotelGruComboChart :chart-data="chartData" />
+          <!--<HotelGruComboChart :chart-data="chartData" />-->
+          <HotelGruActiveHotelVsChurnChart :chart-data="chartData" />
         </div>
         <div class="h-[300px]">
           <HotelGruComparisonChart :chart-data="chartData" />
