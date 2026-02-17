@@ -377,10 +377,16 @@ export const useReportStore = defineStore('report', () => {
       cmpayChargeActual: data.cmpayChargeActual,
       cmpayProfitTarget: data.cmpayProfitTarget,
       cmpayProfitActual: data.cmpayProfitActual,
+      cmpayAllUserCount: data.cmpayAllUserCount,
       cmpayActiveUserCount: data.cmpayActiveUserCount,
       hotelgruCommissionTarget: data.hotelgruCommissionTarget,
       hotelgruCommissionActual: data.hotelgruCommissionActual,
       hotelgruHotelActual: data.hotelgruHotelActual,
+      hotelgruHotelChurnCount: data.hotelgruHotelChurnCount,
+      partnerHotelTarget: data.partnerHotelTarget,
+      partnerHotelActual: data.partnerHotelActual,
+      partnerRevenueTarget: data.partnerRevenueTarget,
+      partnerRevenueActual: data.partnerRevenueActual,
     };
   });
 
