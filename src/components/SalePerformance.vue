@@ -24,6 +24,8 @@ import ThailandMapChart from './charts/ThailandMapChart.vue';
 import AsiaMapChart from './charts/AsiaMapChart.vue';
 import PartnerHotelPerformanceChart from './charts/PartnerHotelPerformanceChart.vue';
 import PartnerRevenuePerformanceChart from './charts/PartnerRevenuePerformanceChart.vue';
+import RevenueYearOverYearChart from './charts/RevenueYearOverYearChart.vue';
+import ActiveHotelYearOverYearChart from './charts/ActiveHotelYearOverYearChart.vue';
 
 const store = useReportStore();
 
@@ -305,9 +307,25 @@ const isCountMetric = (key: string | number) => {
                 </div>
               </div>
             </div>
+            <div v-else>
+              <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+                <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Performance: Year over Year</h3>
+                  <div class="h-[300px]">
+                    <RevenueYearOverYearChart :chart-data="annualChartData" />
+                  </div>
+                </section>
+                <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-4">Active Hotel Growth: Year over Year</h3>
+                  <div class="h-[300px]">
+                    <ActiveHotelYearOverYearChart :chart-data="annualChartData" />
+                  </div>
+                </section>
+              </div>
+            </div>
             
             <!-- Annual Performance Analysis Charts -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-8">
+            <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4 gap-8">
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">Revenue Trend: Actual vs. Target</h3>
                 <div class="h-[300px]">
