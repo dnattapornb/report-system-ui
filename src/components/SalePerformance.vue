@@ -22,6 +22,8 @@ import OnlineUsersBadge from './OnlineUsersBadge.vue';
 import ClientGrowthVsChurnChart from './charts/ClientGrowthVsChurnChart.vue';
 import ThailandMapChart from './charts/ThailandMapChart.vue';
 import AsiaMapChart from './charts/AsiaMapChart.vue';
+import PartnerHotelPerformanceChart from './charts/PartnerHotelPerformanceChart.vue';
+import PartnerRevenuePerformanceChart from './charts/PartnerRevenuePerformanceChart.vue';
 
 const store = useReportStore();
 
@@ -352,6 +354,23 @@ const isCountMetric = (key: string | number) => {
                   <AcquisitionMixChart :chart-data="annualChartData" />
                 </div>
               </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Partner Hotel Acquisition</h3>
+                <div class="h-[300px]">
+                  <PartnerHotelPerformanceChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Partner Revenue Performance</h3>
+                <div class="h-[300px]">
+                  <PartnerRevenuePerformanceChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl"></section>
+              <section class="bg-white p-6 rounded-2xl"></section>
               
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
