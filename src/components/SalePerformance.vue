@@ -193,6 +193,15 @@ const isCountMetric = (key: string | number) => {
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">CM Pay Adoption Rate</p>
+                <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.cmpayActiveUserCount >= monthlyDeepDiveKpis.cmpayAllUserCount ? 'text-emerald-600' : 'text-rose-500'">
+                  {{ ((monthlyDeepDiveKpis.cmpayActiveUserCount / (monthlyDeepDiveKpis.cmpayAllUserCount || 1)) * 100).toFixed(1) }}%
+                </h4>
+                <p class="text-[10px] text-slate-400 mt-1">
+                  {{ monthlyDeepDiveKpis.cmpayActiveUserCount }} / {{ monthlyDeepDiveKpis.cmpayAllUserCount }} Users
+                </p>
+              </div>
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Cm Pay Charge</p>
                 <h4 class="text-2xl font-black text-violet-600 mt-2">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual, isCompactView) }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1"></p>
@@ -240,10 +249,10 @@ const isCountMetric = (key: string | number) => {
                     <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Profit</p>
                     <p class="text-lg font-black text-sky-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayProfitActual) }}</p>
                   </div>
-                  <!--<div class="p-4 bg-slate-50 rounded-xl border border-slate-100">-->
-                  <!--  <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Cm Pay Charge</p>-->
-                  <!--  <p class="text-lg font-black text-violet-600">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual) }}</p>-->
-                  <!--</div>-->
+                  <div class="p-4 bg-slate-50 rounded-xl border border-purple-100">
+                    <p class="text-xs text-slate-500 font-bold uppercase tracking-tighter">Partner Revenue</p>
+                    <p class="text-lg font-black text-violet-600">{{ formatCurrency(monthlyDeepDiveKpis.partnerRevenueActual) }}</p>
+                  </div>
                 </div>
               </section>
               
