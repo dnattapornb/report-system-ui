@@ -77,38 +77,49 @@ const chartOptions: ChartOptions = {
   maintainAspectRatio: false,
   plugins: {
     legend: {
-      display: false, // ซ่อน Legend เพราะมีเส้นเดียว (ใส่ชื่อใน Title Card แทน)
+      display: false,
     },
     datalabels: {
       align: 'top',
       anchor: 'end',
-      formatter: (value: number) => formatCurrency(value, true), // ย่อตัวเลข (e.g. 1.5k)
+      formatter: (value: number) => formatCurrency(value, true),
       font: { weight: 'bold', size: 10 },
-      color: '#6366f1', // สีเดียวกับเส้น
+      color: '#6366f1',
       offset: 4,
-      display: 'auto', // ซ่อนอัตโนมัติถ้าเบียดกัน
+      display: 'auto',
       clip: false,
       clamp: true,
     },
     tooltip: {
       borderWidth: 1,
       padding: 10,
-      displayColors: false, // ไม่ต้องโชว์กล่องสีใน Tooltip
+      displayColors: false, // ซ่อนกล่องสีหน้าข้อความ
       callbacks: {
+        // ✅ ปรับแก้ส่วน Label ให้ Return เป็น Array (เพื่อขึ้นบรรทัดใหม่)
         label: (context) => {
-          let label = context.dataset.label || '';
-          if (label) label += ': ';
-          // แสดงค่าเต็มใน Tooltip
-          label += formatCurrency(context.parsed.y);
-          return label;
+          const index = context.dataIndex;
+          const rawItem = props.chartData[index]; // ดึงข้อมูลดิบจาก index
+          
+          if (!rawItem) return '';
+          
+          // สร้าง Array ข้อความ 3 บรรทัด
+          return [
+            `🏨 Hotels: ${Math.round(rawItem.hotelActual).toLocaleString()}`, // จำนวนโรงแรม
+            `💰 Revenue: ${formatCurrency(rawItem.revenueActual)}`, // รายได้รวม
+            `📊 ARPU: ${formatCurrency(context.parsed.y)}` // ค่า ARPU (แกน Y)
+          ];
         },
-        footer: () => 'Avg. revenue per active hotel',
+        // ลบ footer ออกเพราะข้อมูลครบแล้วใน label
+        title: (tooltipItems) => {
+          // ปรับ Title ให้แสดงเดือนชัดเจน (Optional)
+          return tooltipItems[0].label;
+        }
       },
     },
   },
   scales: {
     y: {
-      beginAtZero: true, // เริ่มที่ 0 เพื่อให้เห็น Scale จริง
+      beginAtZero: true,
       title: { display: true, text: 'Revenue per Hotel (THB)' },
       ticks: {
         callback: function(value) {
