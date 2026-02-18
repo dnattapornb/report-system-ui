@@ -46,9 +46,7 @@ const chartData = computed(() => {
   const datasets = uniqueYears.map((year, index) => {
     const data = months.map((_, monthIndex) => {
       const monthStr = String(monthIndex + 1).padStart(2, '0');
-      const item = props.chartData.find(
-        (d) => d.year === year && d.month === monthStr,
-      );
+      const item = props.chartData.find((d) => d.year === year && d.month === monthStr);
       return item ? item.hotelActual : 0;
     });
     

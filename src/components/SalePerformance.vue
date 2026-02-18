@@ -26,6 +26,8 @@ import PartnerHotelPerformanceChart from './charts/PartnerHotelPerformanceChart.
 import PartnerRevenuePerformanceChart from './charts/PartnerRevenuePerformanceChart.vue';
 import RevenueYearOverYearChart from './charts/RevenueYearOverYearChart.vue';
 import ActiveHotelYearOverYearChart from './charts/ActiveHotelYearOverYearChart.vue';
+import CMPayProfitYearOverYearChart from './charts/CMPayProfitYearOverYearChart.vue';
+import HotelGruCommissionYearOverYearChart from './charts/HotelGruCommissionYearOverYearChart.vue';
 
 const store = useReportStore();
 
@@ -167,7 +169,7 @@ const isCountMetric = (key: string | number) => {
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Target Achievement</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Target Achievement</p>
                 <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.hotelActual >= monthlyDeepDiveKpis.hotelTarget ? 'text-emerald-600' : 'text-rose-500'">
                   {{ ((monthlyDeepDiveKpis.hotelActual / (monthlyDeepDiveKpis.hotelTarget || 1)) * 100).toFixed(1) }}%
                 </h4>
@@ -185,7 +187,7 @@ const isCountMetric = (key: string | number) => {
                 </p>
               </div>
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
-                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Gru Active Hotels</p>
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Hotel Gru Hotels</p>
                 <h4 class="text-2xl font-black text-sky-600 mt-2">{{ monthlyDeepDiveKpis.hotelgruHotelActual }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
               </div>
@@ -207,6 +209,20 @@ const isCountMetric = (key: string | number) => {
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Cm Pay Charge</p>
                 <h4 class="text-2xl font-black text-violet-600 mt-2">{{ formatCurrency(monthlyDeepDiveKpis.cmpayChargeActual, isCompactView) }}</h4>
                 <p class="text-[10px] text-slate-400 mt-1"></p>
+              </div>
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Partner Live Hotels</p>
+                <h4 class="text-2xl font-black text-purple-600 mt-2">{{ formatNumber(monthlyDeepDiveKpis.partnerHotelActual) }}</h4>
+                <p class="text-[10px] text-slate-400 mt-1">Active in system</p>
+              </div>
+              <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Partner Hotel Target Achievement</p>
+                <h4 class="text-2xl font-black mt-2" :class="monthlyDeepDiveKpis.partnerHotelActual >= monthlyDeepDiveKpis.partnerHotelTarget ? 'text-emerald-600' : 'text-rose-500'">
+                  {{ ((monthlyDeepDiveKpis.partnerHotelActual / (monthlyDeepDiveKpis.partnerHotelTarget || 1)) * 100).toFixed(1) }}%
+                </h4>
+                <p class="text-[10px] text-slate-400 mt-1">
+                  {{ monthlyDeepDiveKpis.partnerHotelActual }} / {{ monthlyDeepDiveKpis.partnerHotelTarget }} Hotels
+                </p>
               </div>
             </div>
             
@@ -319,6 +335,18 @@ const isCountMetric = (key: string | number) => {
                   <h3 class="text-lg font-bold text-slate-700 mb-4">Active Hotel Growth: Year over Year</h3>
                   <div class="h-[300px]">
                     <ActiveHotelYearOverYearChart :chart-data="annualChartData" />
+                  </div>
+                </section>
+                <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Profit Performance: Year over Year</h3>
+                  <div class="h-[300px]">
+                    <CMPayProfitYearOverYearChart :chart-data="annualChartData" />
+                  </div>
+                </section>
+                <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <h3 class="text-lg font-bold text-slate-700 mb-4">Hotel Gru Commission Performance: Year over Year</h3>
+                  <div class="h-[300px]">
+                    <HotelGruCommissionYearOverYearChart :chart-data="annualChartData" />
                   </div>
                 </section>
               </div>
