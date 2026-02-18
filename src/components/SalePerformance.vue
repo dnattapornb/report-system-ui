@@ -28,6 +28,8 @@ import RevenueYearOverYearChart from './charts/RevenueYearOverYearChart.vue';
 import ActiveHotelYearOverYearChart from './charts/ActiveHotelYearOverYearChart.vue';
 import CMPayProfitYearOverYearChart from './charts/CMPayProfitYearOverYearChart.vue';
 import HotelGruCommissionYearOverYearChart from './charts/HotelGruCommissionYearOverYearChart.vue';
+import AverageRevenuePerUnitChart from './charts/AverageRevenuePerUnitChart.vue';
+import CMPayEfficiencyChart from './charts/CMPayEfficiencyChart.vue';
 
 const store = useReportStore();
 
@@ -424,8 +426,19 @@ const isCountMetric = (key: string | number) => {
                 </div>
               </section>
               
-              <section class="bg-white p-6 rounded-2xl"></section>
-              <section class="bg-white p-6 rounded-2xl"></section>
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">Average Revenue Per Unit Trend (Monthly)</h3>
+                <div class="h-[300px]">
+                  <AverageRevenuePerUnitChart :chart-data="annualChartData" />
+                </div>
+              </section>
+              
+              <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Efficiency Transaction Volume vs. Take Rate Analysis</h3>
+                <div class="h-[300px]">
+                  <CMPayEfficiencyChart :chart-data="annualChartData" />
+                </div>
+              </section>
               
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
