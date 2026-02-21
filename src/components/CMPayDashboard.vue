@@ -11,36 +11,69 @@ const props = defineProps<{
   chartData: ReportMetricItem[];
 }>();
 
-// Calculate totals for the selected period
 const periodTotals = computed(() => {
   if (!props.chartData || props.chartData.length === 0) {
     return {
-      totalCharge: 0,
       totalChargeTarget: 0,
-      totalProfit: 0,
+      totalProfitActual: 0,
       totalProfitTarget: 0,
-      totalActiveUsers: 0,
+      totalChargeActual: 0,
+      allUserCount: 0,
+      activeUserCount: 0,
     };
   }
   
-  const lastMonthWithUsers = [...props.chartData].reverse().find(m => m.cmpayActiveUserCount > 0);
+  const now = new Date();
+  const currentActualYear = now.getFullYear().toString();
+  const currentMonth = now.getMonth();
   
-  const totals = props.chartData.reduce((acc, month) => {
-    acc.totalCharge += month.cmpayChargeActual;
-    acc.totalChargeTarget += month.cmpayChargeTarget;
-    acc.totalProfit += month.cmpayProfitActual;
-    acc.totalProfitTarget += month.cmpayProfitTarget;
-    return acc;
-  }, {
-    totalCharge: 0,
-    totalChargeTarget: 0,
-    totalProfit: 0,
-    totalProfitTarget: 0,
-  });
+  const calculateYearlyTotals = (year: string, month: number) => {
+    const monthsData = props.chartData;
+    if (!monthsData) return null;
+    
+    const totals = {
+      cmpayProfitTarget: 0,
+      cmpayProfitActual: 0,
+      cmpayChargeTarget: 0,
+      cmpayChargeActual: 0,
+      cmpayAllUserCount: 0,
+      cmpayActiveUserCount: 0,
+    };
+    
+    props.chartData.forEach((data) => {
+      const itemYear = parseInt(data.year);
+      const itemMonth = parseInt(data.month);
+      const isWithinYear = itemYear < parseInt(year);
+      const isSameYearAndValidMonth = (itemYear === parseInt(year)) && (itemMonth <= month);
+      
+      if (isWithinYear || isSameYearAndValidMonth) {
+        totals.cmpayProfitTarget += data.cmpayProfitTarget;
+        totals.cmpayProfitActual += data.cmpayProfitActual;
+        totals.cmpayChargeTarget += data.cmpayChargeTarget;
+        totals.cmpayChargeActual += data.cmpayChargeActual;
+      }
+      
+      if ((itemYear === parseInt(year)) && (itemMonth === month)) {
+        totals.cmpayAllUserCount = data.cmpayAllUserCount;
+        totals.cmpayActiveUserCount = data.cmpayActiveUserCount;
+      }
+    });
+    
+    return {
+      ...totals,
+    };
+  };
+  
+  const actualData = calculateYearlyTotals(currentActualYear, currentMonth);
+  const fullYearData = calculateYearlyTotals(currentActualYear, 12);
   
   return {
-    ...totals,
-    totalActiveUsers: lastMonthWithUsers ? lastMonthWithUsers.cmpayActiveUserCount : 0,
+    totalProfitTarget: fullYearData.cmpayProfitTarget,
+    totalProfitActual: actualData.cmpayProfitActual,
+    totalChargeTarget: fullYearData.cmpayChargeTarget,
+    totalChargeActual: actualData.cmpayChargeActual,
+    allUserCount: actualData.cmpayAllUserCount,
+    activeUserCount: actualData.cmpayActiveUserCount,
   };
 });
 </script>
@@ -53,13 +86,13 @@ const periodTotals = computed(() => {
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
           <p class="text-sm font-bold text-slate-500 uppercase mb-1">Total Profit</p>
-          <h4 class="text-2xl font-black text-blue-600 mb-2">{{ formatCurrency(periodTotals.totalProfit) }}</h4>
-          <p class="text-[10px] text-slate-400 mt-1">Total Charge {{ formatCurrency(periodTotals.totalCharge) }}</p>
+          <h4 class="text-2xl font-black text-blue-600 mb-2">{{ formatCurrency(periodTotals.totalProfitActual) }}</h4>
+          <p class="text-[10px] text-slate-400 mt-1">Total Charge {{ formatCurrency(periodTotals.totalChargeActual) }}</p>
         </div>
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
           <p class="text-sm font-bold text-slate-500 uppercase mb-1">Active Users</p>
-          <p class="text-2xl font-black text-emerald-600 mb-2">{{ periodTotals.totalActiveUsers }}</p>
-          <p class="text-[10px] text-slate-400 mt-1">Overview</p>
+          <p class="text-2xl font-black text-emerald-600 mb-2">{{ periodTotals.activeUserCount }}</p>
+          <p class="text-[10px] text-slate-400 mt-1">{{ periodTotals.activeUserCount }} / {{ periodTotals.allUserCount }} Users</p>
         </div>
       </div>
       
@@ -68,7 +101,7 @@ const periodTotals = computed(() => {
         <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Profit vs Target</h4>
           <GaugeChartECharts
-            :value="periodTotals.totalProfit"
+            :value="periodTotals.totalProfitActual"
             :max="periodTotals.totalProfitTarget"
             :show-min-max-labels="true"
             label="Profit"
@@ -77,7 +110,7 @@ const periodTotals = computed(() => {
         <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Charge vs Target</h4>
           <GaugeChartECharts
-            :value="periodTotals.totalCharge"
+            :value="periodTotals.totalChargeActual"
             :max="periodTotals.totalChargeTarget"
             :show-min-max-labels="true"
             label="Charge"
@@ -98,7 +131,6 @@ const periodTotals = computed(() => {
           <CMPayComparisonChart :chart-data="chartData" :metric-type="'profit'" />
         </div>
       </div>
-    
     </div>
   </div>
 </template>

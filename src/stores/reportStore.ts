@@ -208,7 +208,7 @@ export const useReportStore = defineStore('report', () => {
     const selectedYear = selectedYearMonth.value.year;
     const prevYear = (parseInt(selectedYear) - 1).toString();
 
-    // Noe --> Month Range
+    // Now --> Month Range
     const now = new Date();
     const currentActualYear = now.getFullYear().toString();
 

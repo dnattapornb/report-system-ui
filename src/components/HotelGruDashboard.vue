@@ -12,30 +12,61 @@ const props = defineProps<{
   chartData: ReportMetricItem[];
 }>();
 
-// Calculate totals for the selected period
 const periodTotals = computed(() => {
   if (!props.chartData || props.chartData.length === 0) {
     return {
-      totalCommission: 0,
+      totalCommissionActual: 0,
       totalCommissionTarget: 0,
-      totalHotels: 0,
+      hotelTarget: 0,
+      hotelActual: 0,
     };
   }
   
-  const lastMonthWithHotels = [...props.chartData].reverse().find(m => m.hotelgruHotelActual > 0);
+  const now = new Date();
+  const currentActualYear = now.getFullYear().toString();
+  const currentMonth = now.getMonth();
   
-  const totals = props.chartData.reduce((acc, month) => {
-    acc.totalCommission += month.hotelgruCommissionActual;
-    acc.totalCommissionTarget += month.hotelgruCommissionTarget;
-    return acc;
-  }, {
-    totalCommission: 0,
-    totalCommissionTarget: 0,
-  });
+  const calculateYearlyTotals = (year: string, month: number) => {
+    const monthsData = props.chartData;
+    if (!monthsData) return null;
+    
+    const totals = {
+      hotelgruCommissionTarget: 0,
+      hotelgruCommissionActual: 0,
+      hotelgruHotelTarget: 0,
+      hotelgruHotelActual: 0,
+    };
+    
+    props.chartData.forEach((data) => {
+      const itemYear = parseInt(data.year);
+      const itemMonth = parseInt(data.month);
+      const isWithinYear = itemYear < parseInt(year);
+      const isSameYearAndValidMonth = (itemYear === parseInt(year)) && (itemMonth <= month);
+      
+      if (isWithinYear || isSameYearAndValidMonth) {
+        totals.hotelgruCommissionTarget += data.hotelgruCommissionTarget;
+        totals.hotelgruCommissionActual += data.hotelgruCommissionActual;
+      }
+      
+      if ((itemYear === parseInt(year)) && (itemMonth === month)) {
+        totals.hotelgruHotelTarget = data.hotelgruHotelTarget;
+        totals.hotelgruHotelActual = data.hotelgruHotelActual;
+      }
+    });
+    
+    return {
+      ...totals,
+    };
+  };
+  
+  const actualData = calculateYearlyTotals(currentActualYear, currentMonth);
+  const fullYearData = calculateYearlyTotals(currentActualYear, 12);
   
   return {
-    ...totals,
-    totalHotels: lastMonthWithHotels ? lastMonthWithHotels.hotelgruHotelActual : 0,
+    totalCommissionTarget: fullYearData.hotelgruCommissionTarget,
+    totalCommissionActual: actualData.hotelgruCommissionActual,
+    hotelTargetCount: fullYearData.hotelgruHotelTarget,
+    hotelActualCount: actualData.hotelgruHotelActual,
   };
 });
 </script>
@@ -48,13 +79,13 @@ const periodTotals = computed(() => {
       <div class="grid grid-cols-2 gap-4">
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
           <p class="text-sm font-bold text-slate-500 uppercase mb-1">Total Commission</p>
-          <h4 class="text-2xl font-black text-blue-600 mb-2">{{ formatCurrency(periodTotals.totalCommission) }}</h4>
-          <p class="text-[10px] text-slate-400 mt-1"></p>
+          <h4 class="text-2xl font-black text-blue-600 mb-2">{{ formatCurrency(periodTotals.totalCommissionActual) }}</h4>
+          <p class="text-[10px] text-slate-400 mt-1">Target Commission {{ formatCurrency(periodTotals.totalCommissionTarget) }}</p>
         </div>
         <div class="bg-slate-50 p-4 rounded-xl border border-slate-100 text-center">
           <p class="text-sm font-bold text-slate-500 uppercase mb-1">Active Hotels</p>
-          <h4 class="text-2xl font-black text-emerald-600 mb-2">{{ periodTotals.totalHotels }}</h4>
-          <p class="text-[10px] text-slate-400 mt-1">Overview</p>
+          <h4 class="text-2xl font-black text-emerald-600 mb-2">{{ periodTotals.hotelActualCount }}</h4>
+          <p class="text-[10px] text-slate-400 mt-1">{{ periodTotals.hotelActualCount }} / {{ periodTotals.hotelTargetCount }} Hotels</p>
         </div>
       </div>
       
@@ -63,7 +94,7 @@ const periodTotals = computed(() => {
         <div class="bg-white p-4 border border-slate-100 text-center">
           <h4 class="text-xs font-bold mb-2">Commission vs Target</h4>
           <GaugeChartECharts
-            :value="periodTotals.totalCommission"
+            :value="periodTotals.totalCommissionActual"
             :max="periodTotals.totalCommissionTarget"
             :show-min-max-labels="true"
             label="Commission"
