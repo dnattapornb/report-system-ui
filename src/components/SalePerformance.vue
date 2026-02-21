@@ -2,7 +2,7 @@
 import { computed } from 'vue';
 import { useReportStore } from '../stores/reportStore';
 import { VueDatePicker } from '@vuepic/vue-datepicker';
-import { formatCurrency, formatNumber } from '../utils/formatters';
+import { formatCurrency, formatNumber, formatPercentage } from '../utils/formatters';
 import { useBreakpoints } from '@vueuse/core';
 import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -282,14 +282,14 @@ const isCountMetric = (key: string | number) => {
               <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                 <p class="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Cm Pay Charge</p>
                 <h4 class="text-2xl font-black text-violet-600 mt-2">
-                  {{ formatCurrency(momComparison.metrics.cmpayChargeActual.current) }}
+                  {{ formatCurrency(momComparison.metrics.cmpayChargeActual.current, isCompactView) }}
                 </h4>
                 <div v-if="momComparison.metrics.cmpayChargeActual.growth !== null" class="mt-2">
                   <span :class="getTrendClass(momComparison.metrics.cmpayChargeActual.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full items-center gap-1">
                     {{ momComparison.metrics.cmpayChargeActual.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(momComparison.metrics.cmpayChargeActual.growth).toFixed(1) }}%
                   </span>
                   <span class="pl-1 text-[10px] text-slate-400 font-medium">
-                    vs last month have ({{ formatCurrency(momComparison.metrics.cmpayChargeActual.prev || 0) }})
+                    vs last month have ({{ formatCurrency(momComparison.metrics.cmpayChargeActual.prev || 0, isCompactView) }})
                   </span>
                 </div>
                 <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ momComparison.monthYear.prev }}</div>
@@ -444,16 +444,122 @@ const isCountMetric = (key: string | number) => {
             <!-- Annual YoY Comparison Cards -->
             <div v-if="annualComparison">
               <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-                <div v-for="(data, key) in annualComparison.metrics" :key="key" class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
-                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ data.label }} (Annual)</p>
-                  <h3 class="text-2xl font-black text-slate-800">
-                    {{ isCountMetric(key) ? Math.round(data.current).toLocaleString() : formatCurrency(data.current) }}
+                <!-- Month over Month Comparison : Total Revenue -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.revenue.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-emerald-600">
+                    {{ formatCurrency(annualComparison.metrics.revenue.current) }}
                   </h3>
-                  <div v-if="data.growth !== null" class="mt-2 flex items-center gap-2">
-                    <span :class="data.growth >= 0 ? 'text-emerald-600 bg-emerald-50' : 'text-rose-600 bg-rose-50'" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
-                      {{ data.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(data.growth).toFixed(1) }}%
+                  <div v-if="annualComparison.metrics.revenue.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.revenue.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.revenue.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(annualComparison.metrics.revenue.growth).toFixed(1) }}%
                     </span>
-                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ isCountMetric(key) ? Math.round(data.prev || 0).toLocaleString() : formatCurrency(data.prev || 0) }})</span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.revenue.prev || 0) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : MRR -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.mrr.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-blue-600">
+                    {{ formatCurrency(annualComparison.metrics.mrr.current) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.mrr.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.mrr.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.mrr.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(annualComparison.metrics.mrr.growth).toFixed(1) }}%
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.mrr.prev || 0) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : Churn Revenue -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.churnAmount.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-rose-600">
+                    {{ formatCurrency(annualComparison.metrics.churnAmount.current) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.churnAmount.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.churnAmount.growth, true)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.churnAmount.growth < 0 ? '▲' : '▼' }} {{ Math.abs(annualComparison.metrics.churnAmount.growth).toFixed(1) }}%
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.churnAmount.prev || 0) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : CM Pay Charge -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.cmpayChargeActual.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-violet-600">
+                    {{ formatCurrency(annualComparison.metrics.cmpayChargeActual.current, isCompactView) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.cmpayChargeActual.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.cmpayChargeActual.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.cmpayChargeActual.growth >= 0 ? '▲' : '▼' }} {{ Math.abs(annualComparison.metrics.cmpayChargeActual.growth).toFixed(1) }}%
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.cmpayChargeActual.prev || 0, isCompactView) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : CM Pay Profit -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.cmpayProfitActual.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-sky-600">
+                    {{ formatCurrency(annualComparison.metrics.cmpayProfitActual.current) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.cmpayProfitActual.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.cmpayProfitActual.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.cmpayProfitActual.growth >= 0 ? '▲' : '▼' }} {{ formatPercentage(Math.abs(annualComparison.metrics.cmpayProfitActual.growth)) }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.cmpayProfitActual.prev || 0) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : HotelGru Commission -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.hotelgruCommissionActual.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-blue-700">
+                    {{ formatCurrency(annualComparison.metrics.hotelgruCommissionActual.current) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.hotelgruCommissionActual.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.hotelgruCommissionActual.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.hotelgruCommissionActual.growth >= 0 ? '▲' : '▼' }} {{ formatPercentage(Math.abs(annualComparison.metrics.hotelgruCommissionActual.growth)) }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.hotelgruCommissionActual.prev || 0) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : Total New Customers -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.newClients.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-violet-600">
+                    +{{ formatNumber(annualComparison.metrics.newClients.current) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.newClients.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.newClients.growth)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.newClients.growth >= 0 ? '▲' : '▼' }} {{ formatPercentage(Math.abs(annualComparison.metrics.newClients.growth)) }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have (+{{ formatNumber(annualComparison.metrics.newClients.prev || 0) }})</span>
+                  </div>
+                  <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
+                </div>
+                
+                <!-- Month over Month Comparison : Total New Customers -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
+                  <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.clientChurnCount.label }} (Annual)</p>
+                  <h3 class="text-2xl font-black text-red-600">
+                    -{{ formatNumber(annualComparison.metrics.clientChurnCount.current) }}
+                  </h3>
+                  <div v-if="annualComparison.metrics.clientChurnCount.growth !== null" class="mt-2 flex items-center gap-2">
+                    <span :class="getTrendClass(annualComparison.metrics.clientChurnCount.growth, true)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
+                      {{ annualComparison.metrics.clientChurnCount.growth < 0 ? '▲' : '▼' }} {{ formatPercentage(Math.abs(annualComparison.metrics.clientChurnCount.growth)) }}
+                    </span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have (-{{ formatNumber(annualComparison.metrics.clientChurnCount.prev || 0) }})</span>
                   </div>
                   <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
                 </div>

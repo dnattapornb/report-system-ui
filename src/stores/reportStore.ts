@@ -205,51 +205,82 @@ export const useReportStore = defineStore('report', () => {
   const annualComparison = computed(() => {
     if (!reportMetricsData.value || !selectedYearMonth.value) return null;
 
-    const currentYear = selectedYearMonth.value.year;
-    const prevYear = (parseInt(currentYear) - 1).toString();
+    const selectedYear = selectedYearMonth.value.year;
+    const prevYear = (parseInt(selectedYear) - 1).toString();
 
-    const calculateYearlyTotals = (year: string) => {
-      const months = reportMetricsData.value![year];
-      if (!months) return null;
+    // Noe --> Month Range
+    const now = new Date();
+    const currentActualYear = now.getFullYear().toString();
+
+    // Determine the last month to include in the calculation
+    let limitMonthForSelectedYear = 12; // Default คือทั้งปี
+
+    if (selectedYear === currentActualYear) {
+      // ถ้าเป็นปีปัจจุบัน (2026) และวันนี้คือ Feb (2)
+      // limitMonth จะกลายเป็น 1 (Jan)
+      limitMonthForSelectedYear = now.getMonth();
+
+      // Safety check: หากเป็นเดือน Jan ให้คิด Jan ไปก่อนเพื่อไม่ให้ยอดเป็น 0
+      if (limitMonthForSelectedYear === 0) limitMonthForSelectedYear = 1;
+    }
+
+    const calculateYearlyTotals = (year: string, limitMonth: number) => {
+      const monthsData = reportMetricsData.value![year];
+      if (!monthsData) return null;
 
       const totals = {
         revenueActual: 0,
+        revenueTarget: 0,
         cmpayProfitActual: 0,
+        cmpayProfitTarget: 0,
         cmpayChargeActual: 0,
+        cmpayChargeTarget: 0,
         hotelgruCommissionActual: 0,
+        hotelgruCommissionTarget: 0,
         newClients: 0,
         clientChurnCount: 0,
         hotelActual: 0,
-        avgMrr: 0,
+        mrrTotal: 0,
         churnAmount: 0,
         cmpayActiveUserCount: 0,
         monthCount: 0,
       };
 
-      Object.values(months).forEach((m) => {
-        totals.revenueActual += m.revenueActual;
-        totals.cmpayProfitActual += m.cmpayProfitActual;
-        totals.cmpayChargeActual += m.cmpayChargeActual;
-        totals.hotelgruCommissionActual += m.hotelgruCommissionActual;
-        totals.newClients += m.clientNewOrganicCount + m.clientNewPartnerCount;
-        totals.clientChurnCount += m.clientChurnCount;
-        totals.hotelActual += m.hotelActual;
-        totals.avgMrr += m.mrr;
-        totals.churnAmount += m.churnAmount;
-        totals.cmpayActiveUserCount += m.cmpayActiveUserCount;
-        totals.monthCount++;
-      });
-
-      if (totals.monthCount > 0) {
-        totals.avgMrr /= totals.monthCount;
-        totals.hotelActual /= totals.monthCount; // Average Active Hotels
-        totals.cmpayActiveUserCount /= totals.monthCount; // Average Active Users
+      for (let m = 1; m <= limitMonth; m++) {
+        const monthKey = m.toString().padStart(2, '0');
+        const data = monthsData[monthKey];
+        if (data) {
+          totals.revenueActual += data.revenueActual;
+          totals.revenueTarget += data.revenueTarget;
+          totals.cmpayProfitActual += data.cmpayProfitActual;
+          totals.cmpayProfitTarget += data.cmpayProfitTarget;
+          totals.cmpayChargeActual += data.cmpayChargeActual;
+          totals.cmpayChargeTarget += data.cmpayChargeTarget;
+          totals.hotelgruCommissionActual += data.hotelgruCommissionActual;
+          totals.hotelgruCommissionTarget += data.hotelgruCommissionTarget;
+          totals.newClients += data.clientNewOrganicCount + data.clientNewPartnerCount;
+          totals.clientChurnCount += data.clientChurnCount;
+          totals.hotelActual += data.hotelActual;
+          totals.mrrTotal += data.mrr;
+          totals.churnAmount += data.churnAmount;
+          totals.cmpayActiveUserCount += data.cmpayActiveUserCount;
+          totals.monthCount++;
+        }
       }
-      return totals;
+
+      if (totals.monthCount === 0) return null;
+
+      // คำนวณค่าเฉลี่ยตามจำนวนเดือนที่มีข้อมูลจริง
+      return {
+        ...totals,
+        avgMrr: totals.mrrTotal / totals.monthCount,
+        avgHotelActual: totals.hotelActual / totals.monthCount,
+        avgCmpayActiveUserCount: totals.cmpayActiveUserCount / totals.monthCount,
+      };
     };
 
-    const currentTotals = calculateYearlyTotals(currentYear);
-    const prevTotals = calculateYearlyTotals(prevYear);
+    const currentTotals = calculateYearlyTotals(selectedYear, limitMonthForSelectedYear);
+    const prevTotals = calculateYearlyTotals(prevYear, 12);
 
     if (!currentTotals) return null;
 
@@ -259,69 +290,83 @@ export const useReportStore = defineStore('report', () => {
     };
 
     return {
-      currentYear,
+      currentYear: selectedYear,
       prevYear,
+      isPartialYear: limitMonthForSelectedYear < 12,
+      lastCalculatedMonth: limitMonthForSelectedYear,
       metrics: {
         revenue: {
-          label: 'revenue',
+          label: 'Total Revenue',
           current: currentTotals.revenueActual,
           prev: prevTotals?.revenueActual,
           growth: calculateGrowth(currentTotals.revenueActual, prevTotals?.revenueActual),
         },
+        revenueTarget: {
+          label: 'Total Revenue Target',
+          current: currentTotals.revenueTarget,
+          prev: prevTotals?.revenueTarget,
+          growth: calculateGrowth(currentTotals.revenueTarget, prevTotals?.revenueTarget),
+        },
         mrr: {
-          label: 'avg. mrr',
+          label: 'Avg. MRR',
           current: currentTotals.avgMrr,
           prev: prevTotals?.avgMrr,
           growth: calculateGrowth(currentTotals.avgMrr, prevTotals?.avgMrr),
         },
         churnAmount: {
-          label: 'churn revenue',
+          label: 'Churn Revenue',
           current: currentTotals.churnAmount,
           prev: prevTotals?.churnAmount,
           growth: calculateGrowth(currentTotals.churnAmount, prevTotals?.churnAmount),
         },
         cmpayChargeActual: {
-          label: 'cm pay charge',
+          label: 'CM Pay Charge',
           current: currentTotals.cmpayChargeActual,
           prev: prevTotals?.cmpayChargeActual,
           growth: calculateGrowth(currentTotals.cmpayChargeActual, prevTotals?.cmpayChargeActual),
         },
+        cmpayChargeTarget: {
+          label: 'CM Pay Charge Target',
+          current: currentTotals.cmpayChargeTarget,
+          prev: prevTotals?.cmpayChargeTarget,
+          growth: calculateGrowth(currentTotals.cmpayChargeTarget, prevTotals?.cmpayChargeTarget),
+        },
         cmpayProfitActual: {
-          label: 'cm pay profit',
+          label: 'CM Pay Profit',
           current: currentTotals.cmpayProfitActual,
           prev: prevTotals?.cmpayProfitActual,
           growth: calculateGrowth(currentTotals.cmpayProfitActual, prevTotals?.cmpayProfitActual),
         },
-        // cmpayActiveUserCount: {
-        //   label: 'avg. cmpay users',
-        //   current: currentTotals.cmpayActiveUserCount,
-        //   prev: prevTotals?.cmpayActiveUserCount,
-        //   growth: calculateGrowth(currentTotals.cmpayActiveUserCount, prevTotals?.cmpayActiveUserCount),
-        // },
+        cmpayProfitTarget: {
+          label: 'CM Pay Profit Target',
+          current: currentTotals.cmpayProfitTarget,
+          prev: prevTotals?.cmpayProfitTarget,
+          growth: calculateGrowth(currentTotals.cmpayProfitTarget, prevTotals?.cmpayProfitTarget),
+        },
         hotelgruCommissionActual: {
-          label: 'hotel gru commission',
+          label: 'HotelGru Commission',
           current: currentTotals.hotelgruCommissionActual,
           prev: prevTotals?.hotelgruCommissionActual,
           growth: calculateGrowth(currentTotals.hotelgruCommissionActual, prevTotals?.hotelgruCommissionActual),
         },
+        hotelgruCommissionTarget: {
+          label: 'HotelGru Commission Target',
+          current: currentTotals.hotelgruCommissionTarget,
+          prev: prevTotals?.hotelgruCommissionTarget,
+          growth: calculateGrowth(currentTotals.hotelgruCommissionTarget, prevTotals?.hotelgruCommissionTarget),
+        },
         newClients: {
-          label: 'new clients',
+          label: 'Total New Customers',
           current: currentTotals.newClients,
           prev: prevTotals?.newClients,
           growth: calculateGrowth(currentTotals.newClients, prevTotals?.newClients),
         },
         clientChurnCount: {
-          label: 'total drop out',
+          label: 'Total Drop Out',
           current: currentTotals.clientChurnCount,
           prev: prevTotals?.clientChurnCount,
           growth: calculateGrowth(currentTotals.clientChurnCount, prevTotals?.clientChurnCount),
         },
-        // hotelActual: {
-        //   label: 'avg. active hotels',
-        //   current: currentTotals.hotelActual,
-        //   prev: prevTotals?.hotelActual,
-        //   growth: calculateGrowth(currentTotals.hotelActual, prevTotals?.hotelActual),
-        // },
       },
     };
   });
@@ -440,7 +485,7 @@ export const useReportStore = defineStore('report', () => {
           prev: prevData ? (prevData.clientNewOrganicCount + prevData.clientNewPartnerCount) : null,
           growth: calculateGrowth(
             currentData.clientNewOrganicCount + currentData.clientNewPartnerCount,
-            prevData ? (prevData.clientNewOrganicCount + prevData.clientNewPartnerCount) : undefined
+            prevData ? (prevData.clientNewOrganicCount + prevData.clientNewPartnerCount) : undefined,
           ),
         },
         clientChurnCount: {
@@ -483,7 +528,7 @@ export const useReportStore = defineStore('report', () => {
           prev: prevData?.partnerRevenueActual ?? null,
           growth: calculateGrowth(currentData.partnerRevenueActual, prevData?.partnerRevenueActual),
         },
-      }
+      },
     };
   });
 
