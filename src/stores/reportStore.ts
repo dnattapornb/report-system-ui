@@ -390,6 +390,103 @@ export const useReportStore = defineStore('report', () => {
     };
   });
 
+  const monthlyMoMComparison = computed(() => {
+    if (!reportMetricsData.value || !selectedYearMonth.value) return null;
+
+    const { year, month } = selectedYearMonth.value;
+    const currentData = reportMetricsData.value[year]?.[month];
+    if (!currentData) return null;
+
+    // Helper Month formatter
+    const formatMonthYear = (m: string, y: string) => {
+      const date = new Date(parseInt(y), parseInt(m) - 1);
+      const monthStr = date.toLocaleString('default', { month: 'short' });
+      return `${monthStr} ${y}`;
+    };
+
+    // Previous Month/Year
+    let prevYearNum = parseInt(year);
+    let prevMonthNum = parseInt(month) - 1;
+    if (prevMonthNum === 0) {
+      prevMonthNum = 12;
+      prevYearNum -= 1;
+    }
+    const prevYearStr = prevYearNum.toString();
+    const prevMonthStr = prevMonthNum.toString().padStart(2, '0');
+    const prevData = reportMetricsData.value[prevYearStr]?.[prevMonthStr];
+
+    // Helper % Growth
+    const calculateGrowth = (current: number, prev: number | undefined) => {
+      if (prev === undefined || prev === 0) return null;
+      return ((current - prev) / prev) * 100;
+    };
+
+    // Context
+    const monthYearContext = {
+      current: formatMonthYear(month, year),
+      prev: prevData ? formatMonthYear(prevMonthStr, prevYearStr) : null,
+    };
+
+    return {
+      monthYear: monthYearContext,
+      metrics: {
+        hotelActual: {
+          current: currentData.hotelActual,
+          prev: prevData?.hotelActual ?? null,
+          growth: calculateGrowth(currentData.hotelActual, prevData?.hotelActual),
+        },
+        totalNewClients: {
+          current: currentData.clientNewOrganicCount + currentData.clientNewPartnerCount,
+          prev: prevData ? (prevData.clientNewOrganicCount + prevData.clientNewPartnerCount) : null,
+          growth: calculateGrowth(
+            currentData.clientNewOrganicCount + currentData.clientNewPartnerCount,
+            prevData ? (prevData.clientNewOrganicCount + prevData.clientNewPartnerCount) : undefined
+          ),
+        },
+        clientChurnCount: {
+          current: currentData.clientChurnCount,
+          prev: prevData?.clientChurnCount ?? null,
+          growth: calculateGrowth(currentData.clientChurnCount, prevData?.clientChurnCount),
+        },
+        hotelgruHotelActual: {
+          current: currentData.hotelgruHotelActual,
+          prev: prevData?.hotelgruHotelActual ?? null,
+          growth: calculateGrowth(currentData.hotelgruHotelActual, prevData?.hotelgruHotelActual),
+        },
+        hotelgruCommissionActual: {
+          current: currentData.hotelgruCommissionActual,
+          prev: prevData?.hotelgruCommissionActual ?? null,
+          growth: calculateGrowth(currentData.hotelgruCommissionActual, prevData?.hotelgruCommissionActual),
+        },
+        cmpayActiveUserCount: {
+          current: currentData.cmpayActiveUserCount,
+          prev: prevData?.cmpayActiveUserCount ?? null,
+          growth: calculateGrowth(currentData.cmpayActiveUserCount, prevData?.cmpayActiveUserCount),
+        },
+        cmpayChargeActual: {
+          current: currentData.cmpayChargeActual,
+          prev: prevData?.cmpayChargeActual ?? null,
+          growth: calculateGrowth(currentData.cmpayChargeActual, prevData?.cmpayChargeActual),
+        },
+        cmpayProfitActual: {
+          current: currentData.cmpayProfitActual,
+          prev: prevData?.cmpayProfitActual ?? null,
+          growth: calculateGrowth(currentData.cmpayProfitActual, prevData?.cmpayProfitActual),
+        },
+        partnerHotelActual: {
+          current: currentData.partnerHotelActual,
+          prev: prevData?.partnerHotelActual ?? null,
+          growth: calculateGrowth(currentData.partnerHotelActual, prevData?.partnerHotelActual),
+        },
+        partnerRevenueActual: {
+          current: currentData.partnerRevenueActual,
+          prev: prevData?.partnerRevenueActual ?? null,
+          growth: calculateGrowth(currentData.partnerRevenueActual, prevData?.partnerRevenueActual),
+        },
+      }
+    };
+  });
+
   return {
     dashboardData,
     reportMetricsData,
@@ -405,5 +502,6 @@ export const useReportStore = defineStore('report', () => {
     annualComparison,
     monthlyDeepDiveData,
     monthlyDeepDiveKpis,
+    monthlyMoMComparison,
   };
 });
