@@ -10,7 +10,7 @@ import {
   PointElement,
   CategoryScale,
   LinearScale,
-  Filler, // สำคัญ! สำหรับระบายสีใต้กราฟ (Area Chart)
+  Filler, //(Area Chart)
   type ChartOptions,
   type ScriptableContext,
 } from 'chart.js';
@@ -50,7 +50,6 @@ const chartData = computed(() => {
       {
         label: 'ARPU (Revenue per Hotel)',
         data: data,
-        // ใช้สี Indigo (คราม/ม่วง) สื่อถึงความพรีเมียม/มูลค่า
         borderColor: '#6366f1', // Indigo-500
         pointBackgroundColor: '#fff',
         pointBorderColor: '#6366f1',
@@ -58,8 +57,8 @@ const chartData = computed(() => {
         pointRadius: 4,
         pointHoverRadius: 6,
         borderWidth: 2,
-        tension: 0.4, // เส้นโค้ง Smooth
-        fill: true,   // เปิดการระบายสีใต้กราฟ
+        tension: 0.4,
+        fill: true,
         backgroundColor: (context: ScriptableContext<'line'>) => {
           const ctx = context.chart.ctx;
           const gradient = ctx.createLinearGradient(0, 0, 0, 300);
@@ -76,9 +75,6 @@ const chartOptions: ChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
   plugins: {
-    legend: {
-      display: false,
-    },
     datalabels: {
       align: 'top',
       anchor: 'end',
@@ -91,27 +87,25 @@ const chartOptions: ChartOptions = {
       clamp: true,
     },
     tooltip: {
+      enabled: true,
+      mode: 'index',
+      intersect: false,
       borderWidth: 1,
       padding: 10,
-      displayColors: false, // ซ่อนกล่องสีหน้าข้อความ
+      displayColors: false,
       callbacks: {
-        // ✅ ปรับแก้ส่วน Label ให้ Return เป็น Array (เพื่อขึ้นบรรทัดใหม่)
         label: (context) => {
           const index = context.dataIndex;
-          const rawItem = props.chartData[index]; // ดึงข้อมูลดิบจาก index
+          const rawItem = props.chartData[index];
           
           if (!rawItem) return '';
-          
-          // สร้าง Array ข้อความ 3 บรรทัด
           return [
-            `🏨 Hotels: ${Math.round(rawItem.hotelActual).toLocaleString()}`, // จำนวนโรงแรม
-            `💰 Revenue: ${formatCurrency(rawItem.revenueActual)}`, // รายได้รวม
-            `📊 ARPU: ${formatCurrency(context.parsed.y)}` // ค่า ARPU (แกน Y)
+            `Hotels: ${Math.round(rawItem.hotelActual).toLocaleString()}`,
+            `Revenue: ${formatCurrency(rawItem.revenueActual)}`,
+            `ARPU: ${formatCurrency(context.parsed.y)}`
           ];
         },
-        // ลบ footer ออกเพราะข้อมูลครบแล้วใน label
         title: (tooltipItems) => {
-          // ปรับ Title ให้แสดงเดือนชัดเจน (Optional)
           return tooltipItems[0].label;
         }
       },

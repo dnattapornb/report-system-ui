@@ -478,13 +478,13 @@ const isCountMetric = (key: string | number) => {
                 <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100">
                   <p class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{{ annualComparison.metrics.churnAmount.label }} (Annual)</p>
                   <h3 class="text-2xl font-black text-rose-600">
-                    {{ formatCurrency(annualComparison.metrics.churnAmount.current) }}
+                    -{{ formatCurrency(annualComparison.metrics.churnAmount.current) }}
                   </h3>
                   <div v-if="annualComparison.metrics.churnAmount.growth !== null" class="mt-2 flex items-center gap-2">
                     <span :class="getTrendClass(annualComparison.metrics.churnAmount.growth, true)" class="text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
                       {{ annualComparison.metrics.churnAmount.growth < 0 ? '▲' : '▼' }} {{ Math.abs(annualComparison.metrics.churnAmount.growth).toFixed(1) }}%
                     </span>
-                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have ({{ formatCurrency(annualComparison.metrics.churnAmount.prev || 0) }})</span>
+                    <span class="text-[10px] text-slate-400 font-medium">vs {{ annualComparison.prevYear }} have (-{{ formatCurrency(annualComparison.metrics.churnAmount.prev || 0) }})</span>
                   </div>
                   <div v-else class="mt-2 text-[10px] text-slate-300 italic">No data for {{ annualComparison.prevYear }}</div>
                 </div>
@@ -682,7 +682,7 @@ const isCountMetric = (key: string | number) => {
               
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">
                 <h3 class="text-lg font-bold text-slate-700 mb-4">CM Pay Performance</h3>
-                <CMPayDashboard :chart-data="annualChartData" />
+                <CMPayDashboard :chart-data="annualChartData" Churn Reve/>
               </section>
               
               <section class="bg-white p-6 rounded-2xl shadow-xs border border-slate-100 lg:col-span-2">

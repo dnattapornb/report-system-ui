@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { ReportMetricItem } from '../../types/report';
+import { formatCurrency } from '../../utils/formatters';
 
 ChartJS.register(
   Title,
@@ -42,10 +43,10 @@ const chartData = computed(() => {
         type: 'bar' as const,
         label: 'Actual Hotels',
         data: props.chartData.map((d) => d.partnerHotelActual),
-        backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo-500 (Modern Purple/Blue)
+        backgroundColor: 'rgba(99, 102, 241, 0.8)', // Indigo-500
         hoverBackgroundColor: 'rgba(99, 102, 241, 1)',
         borderRadius: 4,
-        barPercentage: 0.6, // ทำให้แท่งผอมลงนิดนึง ดู Modern ขึ้น
+        barPercentage: 0.6,
         order: 2,
       },
       {

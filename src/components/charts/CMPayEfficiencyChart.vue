@@ -36,10 +36,8 @@ const props = defineProps<{
 const chartData = computed(() => {
   const labels = props.chartData.map((d) => d.label);
   
-  // 1. Data สำหรับยอดรูด (Charge Volume)
   const chargeData = props.chartData.map((d) => d.cmpayChargeActual);
   
-  // 2. Data สำหรับ % Take Rate (Profit / Charge * 100)
   const takeRateData = props.chartData.map((d) => {
     if (!d.cmpayChargeActual || d.cmpayChargeActual === 0) return 0;
     return (d.cmpayProfitActual / d.cmpayChargeActual) * 100;
@@ -52,14 +50,14 @@ const chartData = computed(() => {
         type: 'bar' as const,
         label: 'Total Charge Volume',
         data: chargeData,
-        backgroundColor: 'rgba(147, 197, 253, 0.7)', // Blue-300 (สีฟ้าอ่อน ดูเป็น Volume พื้นหลัง)
+        backgroundColor: 'rgba(147, 197, 253, 0.9)', // Blue-300
         hoverBackgroundColor: 'rgba(147, 197, 253, 1)',
         borderRadius: 4,
         barPercentage: 0.6,
         order: 2,
-        yAxisID: 'y', // แกนซ้าย
+        yAxisID: 'y',
         datalabels: {
-          display: false, // ไม่โชว์ตัวเลขบนแท่ง (เดี๋ยวรก)
+          display: false,
         },
       },
       {
@@ -94,20 +92,11 @@ const chartData = computed(() => {
 const chartOptions: ChartOptions = {
   responsive: true,
   maintainAspectRatio: false,
-  interaction: {
-    mode: 'index', // ชี้ทีเดียวขึ้นทั้งแท่งและเส้น
-    intersect: false,
-  },
   plugins: {
-    legend: {
-      position: 'top',
-      align: 'end',
-      labels: {
-        usePointStyle: true,
-        boxWidth: 8,
-      },
-    },
     tooltip: {
+      enabled: true,
+      mode: 'index',
+      intersect: false,
       borderWidth: 1,
       padding: 10,
       callbacks: {
@@ -116,7 +105,6 @@ const chartOptions: ChartOptions = {
           if (label) label += ': ';
           
           if (context.dataset.yAxisID === 'y') {
-            // Format แกนซ้าย (Volume) เป็นเงิน
             label += formatCurrency(context.parsed.y);
           } else {
             // Format แกนขวา (%) เป็นเปอร์เซ็นต์

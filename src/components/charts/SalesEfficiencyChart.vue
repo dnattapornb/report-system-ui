@@ -15,6 +15,7 @@ import {
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import type { ReportMetricItem } from '../../types/report';
+import { formatCurrency } from '../../utils/formatters';
 
 ChartJS.register(
   Title,
@@ -48,11 +49,13 @@ const chartData = computed(() => {
         label: 'Avg. Sales / Rep',
         data: efficiencyData,
         borderColor: '#8b5cf6', // Violet
-        backgroundColor: 'rgba(139, 92, 246, 0.1)',
-        borderWidth: 2,
+        pointBackgroundColor: '#afa2d1',
         pointRadius: 4,
+        pointHoverRadius: 6,
+        borderWidth: 2,
         tension: 0.4,
         fill: true,
+        backgroundColor: 'rgba(139, 92, 246, 0.1)',
       },
     ],
   };
@@ -66,6 +69,9 @@ const chartOptions: ChartOptions = {
       display: false,
     },
     tooltip: {
+      enabled: true,
+      mode: 'index',
+      intersect: false,
       callbacks: {
         label: (context) => {
           return `Avg. Sales / Rep: ${context.parsed.y.toFixed(2)}`;
